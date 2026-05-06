@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI如何革新传媒数据洞察——舆情监测、行为分析、效果归因">
+  <title>数据洞察 | AI × 传媒变革</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .detail-hero {
+      min-height: 50vh; padding-top: 5rem;
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      background: radial-gradient(ellipse at 50% 30%, color-mix(in srgb, var(--theme-color) 8%, transparent) 0%, transparent 60%),
+        radial-gradient(ellipse at 20% 70%, rgba(124, 58, 237, 0.06) 0%, transparent 50%);
+    }
+    .detail-content { max-width: min(90vw, 50rem); margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+    .detail-section { margin-bottom: 3rem; }
+    .detail-section h3 { font-size: 1.25rem; margin-bottom: 0.75rem; color: var(--theme-color, var(--cyan)); }
+    .detail-section p { color: var(--text-secondary); line-height: 1.8; margin-bottom: 0.75rem; }
+    .detail-section ul { color: var(--text-secondary); line-height: 1.8; padding-left: 1.5rem; }
+    .detail-section li { margin-bottom: 0.5rem; }
+    .detail-back { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1.5rem; transition: color 0.3s; }
+    .detail-back:hover { color: var(--cyan); }
+    .detail-highlight { background: color-mix(in srgb, var(--theme-color) 10%, transparent); border: 1px solid color-mix(in srgb, var(--theme-color) 20%, transparent); border-radius: 0.75rem; padding: 1.25rem 1.5rem; margin: 1rem 0; }
+    .detail-highlight strong { color: var(--theme-color); font-size: 1.5rem; display: block; margin-bottom: 0.25rem; }
+    .detail-highlight span { color: var(--text-secondary); font-size: 0.8125rem; }
+  </style>
+</head>
+<body style="--theme-color: var(--green);">
+  <nav class="navbar">
+    <div class="navbar__logo">
+      <div class="navbar__logo-icon">A</div>
+      <span class="navbar__logo-text">AI × 传媒变革</span>
+    </div>
+    <div class="navbar__links">
+      <a href="index.html" class="navbar__link">首页</a>
+      <a href="index.html#topic" class="navbar__link">选题策划</a>
+      <a href="index.html#produce" class="navbar__link">内容生产</a>
+      <a href="index.html#review" class="navbar__link">审核校对</a>
+      <a href="index.html#distribute" class="navbar__link">智能分发</a>
+      <a href="index.html#insight" class="navbar__link navbar__link--active">数据洞察</a>
+      <a href="index.html#future" class="navbar__link">未来展望</a>
+    </div>
+  </nav>
+
+  <section class="detail-hero">
+    <div class="hero__grid-bg"></div>
+    <div class="hero__content">
+      <div class="hero__badge">📊 数据洞察</div>
+      <h1 class="hero__title">用数据驱动每一个<span style="color: var(--green)">决策</span></h1>
+      <p class="hero__subtitle">从舆情监测到用户行为分析，从效果归因到趋势预测<br>让数据成为媒体运营的核心引擎</p>
+    </div>
+  </section>
+
+  <main class="detail-content">
+    <a href="index.html" class="detail-back">← 返回首页</a>
+
+    <article class="detail-section">
+      <h3>场景一：舆情监测</h3>
+      <p>在信息传播以秒计算的时代，舆情监测的时效性直接决定了媒体的响应能力。AI 舆情系统能够实现全网无死角监测，从社交媒体到论坛、从短视频到评论区的全面覆盖。</p>
+      <ul>
+        <li><strong>全网实时抓取</strong>：覆盖微博、微信、抖音、快手、知乎、小红书、新闻评论等全渠道，秒级更新数据</li>
+        <li><strong>情感分析引擎</strong>：不仅识别正负面，更能识别愤怒、担忧、嘲讽等复杂情绪，准确判断舆情走向</li>
+        <li><strong>风险预警机制</strong>：对可能引发公关危机的负面舆情进行分级预警，提前介入处理</li>
+        <li><strong>传播路径还原</strong>：追溯信息的传播链条，识别关键节点和意见领袖，为应对策略提供依据</li>
+      </ul>
+      <div class="detail-highlight">
+        <strong>实时</strong>
+        <span>数据更新——舆情监测系统的数据采集频率</span>
+      </div>
+    </article>
+
+    <article class="detail-section">
+      <h3>场景二：行为分析</h3>
+      <p>了解用户是服务用户的前提。AI 行为分析系统能够从海量的用户交互数据中提炼出有价值的洞察，帮助媒体更懂自己的受众。</p>
+      <ul>
+        <li><strong>阅读行为建模</strong>：分析用户的阅读时长、滚动深度、跳出率、回访频率等指标，构建精细的阅读偏好画像</li>
+        <li><strong>内容偏好聚类</strong>：将用户按兴趣自动分群，识别不同群体的内容需求差异，指导内容策略</li>
+        <li><strong>生命周期追踪</strong>：从新用户到老用户，追踪完整的用户旅程，识别流失风险点和转化关键节点</li>
+        <li><strong>付费意愿预测</strong>：基于行为数据预测用户的付费订阅潜力，为付费转化策略提供数据支撑</li>
+      </ul>
+      <div class="detail-highlight">
+        <strong>360°</strong>
+        <span>全景洞察——用户行为分析覆盖的维度数量</span>
+      </div>
+    </article>
+
+    <article class="detail-section">
+      <h3>场景三：效果归因</h3>
+      <p>每一篇内容的传播效果都值得被精确衡量。AI 效果归因系统能够穿透复杂的多渠道传播链路，准确评估每篇内容的真实价值。</p>
+      <ul>
+        <li><strong>多渠道归因</strong>：追踪内容从发布到最终转化的完整路径，识别每个触点的贡献度</li>
+        <li><strong>内容价值评分</strong>：综合阅读量、互动率、分享率、收藏率、转化率等多个指标，生成内容综合价值评分</li>
+        <li><strong>竞品对标分析</strong>：将自身内容表现与竞品同类型内容进行对比，识别优势和差距</li>
+        <li><strong>ROI 可视化</strong>：将内容生产的投入（人力、时间、推广费用）与产出（流量、转化、品牌价值）进行可视化呈现</li>
+      </ul>
+      <div class="detail-highlight">
+        <strong>99.9%</strong>
+        <span>系统可用性——数据平台的稳定运行保障</span>
+      </div>
+    </article>
+
+    <article class="detail-section">
+      <h3>数据与趋势</h3>
+      <p>数据驱动决策已成为媒体行业的共识，AI 数据分析技术正在让这一愿景更加可及。</p>
+      <ul>
+        <li><strong>数据中台建设</strong>：75% 的头部媒体已完成数据中台建设，实现数据采集、存储、分析的一体化管理</li>
+        <li><strong>实时化趋势</strong>：从日报/周报向实时仪表盘转变，决策者可以随时查看最新数据</li>
+        <li><strong>预测性分析</strong>：从"发生了什么"向"将要发生什么"进化，AI 预测模型帮助媒体提前布局</li>
+        <li><strong>平民化数据</strong>：自然语言查询、可视化拖拽分析等低门槛工具让非技术人员也能自主获取数据洞察</li>
+      </ul>
+      <div class="detail-highlight">
+        <strong>75%</strong>
+        <span>头部媒体数据中台建设完成率</span>
+      </div>
+    </article>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="navbar__logo">
+        <div class="navbar__logo-icon">A</div>
+        <span class="navbar__logo-text">AI × 传媒变革</span>
+      </div>
+      <div class="footer__links">
+        <a href="index.html">首页</a>
+        <a href="#">关于我们</a>
+        <a href="#">联系方式</a>
+      </div>
+      <div class="footer__copyright">© 2026 AI × 传媒变革. 技术引领，探索未来.</div>
+    </div>
+  </footer>
+  <script src="scripts.js"></script>
+</body>
+</html>

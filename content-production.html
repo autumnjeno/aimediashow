@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI如何革新传媒内容生产——智能撰稿、多媒体生成、多语言适配">
+  <title>内容生产 | AI × 传媒变革</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .detail-hero {
+      min-height: 50vh; padding-top: 5rem;
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      background: radial-gradient(ellipse at 50% 30%, color-mix(in srgb, var(--theme-color) 8%, transparent) 0%, transparent 60%),
+        radial-gradient(ellipse at 20% 70%, rgba(124, 58, 237, 0.06) 0%, transparent 50%);
+    }
+    .detail-content { max-width: min(90vw, 50rem); margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+    .detail-section { margin-bottom: 3rem; }
+    .detail-section h3 { font-size: 1.25rem; margin-bottom: 0.75rem; color: var(--theme-color, var(--cyan)); }
+    .detail-section p { color: var(--text-secondary); line-height: 1.8; margin-bottom: 0.75rem; }
+    .detail-section ul { color: var(--text-secondary); line-height: 1.8; padding-left: 1.5rem; }
+    .detail-section li { margin-bottom: 0.5rem; }
+    .detail-back { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1.5rem; transition: color 0.3s; }
+    .detail-back:hover { color: var(--cyan); }
+    .detail-highlight { background: color-mix(in srgb, var(--theme-color) 10%, transparent); border: 1px solid color-mix(in srgb, var(--theme-color) 20%, transparent); border-radius: 0.75rem; padding: 1.25rem 1.5rem; margin: 1rem 0; }
+    .detail-highlight strong { color: var(--theme-color); font-size: 1.5rem; display: block; margin-bottom: 0.25rem; }
+    .detail-highlight span { color: var(--text-secondary); font-size: 0.8125rem; }
+  </style>
+</head>
+<body style="--theme-color: var(--cyan);">
+  <nav class="navbar">
+    <div class="navbar__logo">
+      <div class="navbar__logo-icon">A</div>
+      <span class="navbar__logo-text">AI × 传媒变革</span>
+    </div>
+    <div class="navbar__links">
+      <a href="index.html" class="navbar__link">首页</a>
+      <a href="index.html#topic" class="navbar__link">选题策划</a>
+      <a href="index.html#produce" class="navbar__link navbar__link--active">内容生产</a>
+      <a href="index.html#review" class="navbar__link">审核校对</a>
+      <a href="index.html#distribute" class="navbar__link">智能分发</a>
+      <a href="index.html#insight" class="navbar__link">数据洞察</a>
+      <a href="index.html#future" class="navbar__link">未来展望</a>
+    </div>
+  </nav>
+
+  <section class="detail-hero">
+    <div class="hero__grid-bg"></div>
+    <div class="hero__content">
+      <div class="hero__badge">✍️ 内容生产</div>
+      <h1 class="hero__title">让 AI 成为你的<span style="color: var(--cyan)">首席编辑</span></h1>
+      <p class="hero__subtitle">从文字稿件到多媒体内容，AI 覆盖内容生产全链路<br>让创作者专注于思考，将重复劳动交给智能助手</p>
+    </div>
+  </section>
+
+  <main class="detail-content">
+    <a href="index.html" class="detail-back">← 返回首页</a>
+
+    <article class="detail-section">
+      <h3>场景一：智能撰稿</h3>
+      <p>基于大语言模型的新闻稿件自动生成技术，正在重新定义"写稿"这件事。AI 不仅能快速产出初稿，还能根据媒体风格调性、目标受众和发布平台进行针对性优化。</p>
+      <ul>
+        <li><strong>初稿秒级生成</strong>：输入核心事实和关键数据，AI 在数十秒内生成结构完整、逻辑清晰的新闻初稿</li>
+        <li><strong>风格自适应</strong>：学习媒体历史稿件风格，自动匹配严肃新闻、深度报道、快讯、评论等不同文体</li>
+        <li><strong>多版本输出</strong>：一键生成长文、短讯、微博、短视频脚本等多个版本，适配不同发布渠道</li>
+        <li><strong>人机协作流程</strong>：AI 负责信息组织和初稿撰写，记者专注事实核查、深度采访和观点提炼</li>
+      </ul>
+      <div class="detail-highlight">
+        <strong>3.2×</strong>
+        <span>生产效率提升——引入 AI 撰稿工具后的平均产出增幅</span>
+      </div>
+    </article>
+
+    <article class="detail-section">
+      <h3>场景二：多媒体生成</strong></h3>
+      <p>一篇文字稿的价值不再局限于文字本身。AI 能够将同一内容自动转化为视频、信息图、音频播客等多种形态，实现"一次生产，多次利用"。</p>
+      <ul>
+        <li><strong>文章转视频</strong>：自动提取文章关键段落，匹配素材库画面，生成带字幕和配音的短视频</li>
+        <li><strong>AI 配图</strong>：根据文章主题和情感基调，自动生成或推荐匹配的封面图、插图和信息图</li>
+        <li><strong>智能剪辑</strong>：从原始采访素材中自动识别精彩片段，生成精华版短视频</li>
+        <li><strong>语音合成</strong>：将文字稿转为自然流畅的语音，支持多种音色和情绪风格，用于播客和音频新闻</li>
+      </ul>
+      <div class="detail-highlight">
+        <strong>5min</strong>
+        <span>文章转视频的平均生成时间</span>
+      </div>
+    </article>
+
+    <article class="detail-section">
+      <h3>场景三：多语言适配</h3>
+      <p>全球化传播需求下，内容的跨语言适配不再是"翻译完就完事"。AI 多语言系统能够理解文化语境，保持原文风格和语气，实现真正的本地化输出。</p>
+      <ul>
+        <li><strong>语义级翻译</strong>：超越字面翻译，理解上下文语境、行业术语和文化隐喻，输出地道表达</li>
+        <li><strong>风格保持</strong>：在翻译过程中保持原文的叙述节奏、情感色彩和品牌调性</li>
+        <li><strong>实时同步</strong>：原文发布后自动触发多语言版本生成，实现全球同步发布</li>
+        <li><strong>质量评估</strong>：自动检测翻译中的不一致、遗漏和不当表述，标注待人工复核部分</li>
+      </ul>
+      <div class="detail-highlight">
+        <strong>50+</strong>
+        <span>支持语言覆盖——从主流语种到区域方言</span>
+      </div>
+    </article>
+
+    <article class="detail-section">
+      <h3>数据与趋势</h3>
+      <p>AI 内容生产工具已从实验性技术走向规模化应用，成为媒体机构的标配基础设施。</p>
+      <ul>
+        <li><strong>采用率</strong>：全球 65% 的新闻机构已在内容生产流程中引入 AI 工具，其中 30% 实现全流程覆盖</li>
+        <li><strong>成本降低</strong>：引入 AI 内容生产后，单篇内容的平均生产成本降低 45%，产出周期缩短 60%</li>
+        <li><strong>未来方向</strong>：从"辅助生产"走向"自主生产"——AI 将能够独立完成从选题到发布的全流程，人类角色转向策划和监督</li>
+        <li><strong>伦理挑战</strong>：内容真实性、版权归属、创意价值评估等问题需要建立新的行业规范和标准</li>
+      </ul>
+      <div class="detail-highlight">
+        <strong>85%</strong>
+        <span>人工干预减少——AI 可独立完成的标准化内容生产比例</span>
+      </div>
+    </article>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="navbar__logo">
+        <div class="navbar__logo-icon">A</div>
+        <span class="navbar__logo-text">AI × 传媒变革</span>
+      </div>
+      <div class="footer__links">
+        <a href="index.html">首页</a>
+        <a href="#">关于我们</a>
+        <a href="#">联系方式</a>
+      </div>
+      <div class="footer__copyright">© 2026 AI × 传媒变革. 技术引领，探索未来.</div>
+    </div>
+  </footer>
+  <script src="scripts.js"></script>
+</body>
+</html>

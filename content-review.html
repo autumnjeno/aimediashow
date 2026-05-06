@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI如何革新传媒内容审核——事实核查、敏感检测、版权合规">
+  <title>审核校对 | AI × 传媒变革</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .detail-hero {
+      min-height: 50vh; padding-top: 5rem;
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      background: radial-gradient(ellipse at 50% 30%, color-mix(in srgb, var(--theme-color) 8%, transparent) 0%, transparent 60%),
+        radial-gradient(ellipse at 20% 70%, rgba(124, 58, 237, 0.06) 0%, transparent 50%);
+    }
+    .detail-content { max-width: min(90vw, 50rem); margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+    .detail-section { margin-bottom: 3rem; }
+    .detail-section h3 { font-size: 1.25rem; margin-bottom: 0.75rem; color: var(--theme-color, var(--cyan)); }
+    .detail-section p { color: var(--text-secondary); line-height: 1.8; margin-bottom: 0.75rem; }
+    .detail-section ul { color: var(--text-secondary); line-height: 1.8; padding-left: 1.5rem; }
+    .detail-section li { margin-bottom: 0.5rem; }
+    .detail-back { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1.5rem; transition: color 0.3s; }
+    .detail-back:hover { color: var(--cyan); }
+    .detail-highlight { background: color-mix(in srgb, var(--theme-color) 10%, transparent); border: 1px solid color-mix(in srgb, var(--theme-color) 20%, transparent); border-radius: 0.75rem; padding: 1.25rem 1.5rem; margin: 1rem 0; }
+    .detail-highlight strong { color: var(--theme-color); font-size: 1.5rem; display: block; margin-bottom: 0.25rem; }
+    .detail-highlight span { color: var(--text-secondary); font-size: 0.8125rem; }
+  </style>
+</head>
+<body style="--theme-color: var(--purple);">
+  <nav class="navbar">
+    <div class="navbar__logo">
+      <div class="navbar__logo-icon">A</div>
+      <span class="navbar__logo-text">AI × 传媒变革</span>
+    </div>
+    <div class="navbar__links">
+      <a href="index.html" class="navbar__link">首页</a>
+      <a href="index.html#topic" class="navbar__link">选题策划</a>
+      <a href="index.html#produce" class="navbar__link">内容生产</a>
+      <a href="index.html#review" class="navbar__link navbar__link--active">审核校对</a>
+      <a href="index.html#distribute" class="navbar__link">智能分发</a>
+      <a href="index.html#insight" class="navbar__link">数据洞察</a>
+      <a href="index.html#future" class="navbar__link">未来展望</a>
+    </div>
+  </nav>
+
+  <section class="detail-hero">
+    <div class="hero__grid-bg"></div>
+    <div class="hero__content">
+      <div class="hero__badge">🛡️ 审核校对</div>
+      <h1 class="hero__title">让 AI 成为你的<span style="color: var(--purple)">安全守门人</span></h1>
+      <p class="hero__subtitle">多维度自动审核，从事实核查到版权合规<br>大幅降低人为疏漏，守护媒体公信力</p>
+    </div>
+  </section>
+
+  <main class="detail-content">
+    <a href="index.html" class="detail-back">← 返回首页</a>
+
+    <article class="detail-section">
+      <h3>场景一：事实核查</h3>
+      <p>在信息爆炸的时代，假新闻和误导性内容传播速度远超真相。AI 事实核查系统能够在内容发布前快速识别存疑信息，为编辑提供可靠的参考依据。</p>
+      <ul>
+        <li><strong>交叉验证引擎</strong>：自动比对多个权威信源，标记与主流报道不一致或缺乏来源支撑的信息点</li>
+        <li><strong>数据真伪检测</strong>：识别统计数据中的异常值、过时数据和错误引用，关联原始出处进行验证</li>
+        <li><strong>图像溯源</strong>：通过反向搜索和图像指纹技术，识别篡改图片、过时配图和来源不明的影像素材</li>
+        <li><strong>历史记录比对</strong>：与媒体自有的事实核查数据库交叉比对，避免重复犯错</li>
+      </ul>
+      <div class="detail-highlight">
+        <strong>99.2%</strong>
+        <span>事实核查覆盖率——系统可自动检测的内容比例</span>
+      </div>
+    </article>
+
+    <article class="detail-section">
+      <h3>场景二：敏感检测</h3>
+      <p>内容合规是媒体的生命线。AI 敏感检测系统能够多维度扫描内容中的潜在风险，从政治敏感、暴力血腥到隐私泄露，实现全方位的内容安全把关。</p>
+      <ul>
+        <li><strong>多层级敏感词库</strong>：覆盖政治、宗教、民族、地域歧视等多维度敏感词，支持自定义词库和行业特化规则</li>
+        <li><strong>语境理解</strong>：不仅识别关键词，更分析上下文语境，减少误报率，区分正当引用和不当表述</li>
+        <li><strong>分级预警</strong>：按风险等级分类标注（提示/警告/阻断），编辑可根据媒体定位灵活决策</li>
+        <li><strong>多模态检测</strong>：同时扫描文字、图片、视频、音频中的敏感内容，确保全媒介合规</li>
+      </ul>
+      <div class="detail-highlight">
+        <strong>0.3s</strong>
+        <span>单篇审核耗时——一篇标准新闻稿的全维度自动检测时间</span>
+      </div>
+    </article>
+
+    <article class="detail-section">
+      <h3>场景三：版权合规</h3>
+      <p>版权纠纷是媒体机构面临的重要法律风险之一。AI 版权检测系统能够在发布前自动识别内容中的潜在版权风险，避免侵权纠纷。</p>
+      <ul>
+        <li><strong>图片版权扫描</strong>：与全球主要图库和版权数据库比对，识别未经授权使用的图片素材</li>
+        <li><strong>文字抄袭检测</strong>：比对海量网络内容，识别文字片段的潜在抄袭和不当引用</li>
+        <li><strong>音乐版权识别</strong>：自动识别视频配乐、音频素材的版权归属和使用许可状态</li>
+        <li><strong>合规建议</strong>：对检测到的风险内容提供替代方案和授权获取路径，帮助编辑快速解决问题</li>
+      </ul>
+      <div class="detail-highlight">
+        <strong>80%</strong>
+        <span>人工审核工作量减少——引入 AI 审核后的效率提升</span>
+      </div>
+    </article>
+
+    <article class="detail-section">
+      <h3>数据与趋势</h3>
+      <p>AI 审核技术正从"辅助工具"向"基础设施"演进，成为内容安全体系的核心组成部分。</p>
+      <ul>
+        <li><strong>行业普及</strong>：全球 70% 的主流媒体机构已部署 AI 内容审核系统，年审核内容量超过数十亿条</li>
+        <li><strong>误报率下降</strong>：随着模型迭代，敏感检测误报率从早期的 15% 降至目前的 3% 以下</li>
+        <li><strong>实时审核趋势</strong>：直播、实时评论等场景的即时审核需求推动技术向毫秒级响应演进</li>
+        <li><strong>人机协同深化</strong>：AI 负责标准化初筛，人类编辑专注复杂判断和价值把关，形成高效分工</li>
+      </ul>
+      <div class="detail-highlight">
+        <strong>3%</strong>
+        <span>敏感检测误报率——AI 语境理解能力提升后的最新水平</span>
+      </div>
+    </article>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="navbar__logo">
+        <div class="navbar__logo-icon">A</div>
+        <span class="navbar__logo-text">AI × 传媒变革</span>
+      </div>
+      <div class="footer__links">
+        <a href="index.html">首页</a>
+        <a href="#">关于我们</a>
+        <a href="#">联系方式</a>
+      </div>
+      <div class="footer__copyright">© 2026 AI × 传媒变革. 技术引领，探索未来.</div>
+    </div>
+  </footer>
+  <script src="scripts.js"></script>
+</body>
+</html>
