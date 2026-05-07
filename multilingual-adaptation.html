@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI多语言适配工作流演示系统——智能翻译、本地化适配、质量校验">
+  <title>多语言适配 | AI × 传媒变革</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .detail-hero {
+      min-height: 40vh; padding-top: 5rem;
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      background:
+        radial-gradient(ellipse at 50% 30%, color-mix(in srgb, var(--theme-color) 8%, transparent) 0%, transparent 60%),
+        radial-gradient(ellipse at 20% 70%, rgba(124, 58, 237, 0.06) 0%, transparent 50%);
+    }
+    .config-section {
+      max-width: min(90vw, 56rem);
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+    .config-header { text-align: center; margin-bottom: 2rem; }
+    .config-header h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin-bottom: 0.5rem; }
+    .config-header p { color: var(--text-secondary); font-size: 0.9375rem; }
+
+    .config-form {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 1rem;
+      padding: 2rem;
+    }
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group__label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+    .form-group__hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    .preset-selector {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+    }
+    .preset-chip {
+      padding: 0.375rem 0.875rem;
+      border-radius: 2rem;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.02);
+      color: var(--text-secondary);
+      font-size: 0.8125rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .preset-chip:hover { border-color: rgba(0,212,255,0.3); color: var(--cyan); }
+    .preset-chip.active {
+      background: var(--cyan);
+      color: var(--bg);
+      border-color: var(--cyan);
+    }
+
+    .content-input {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      font-size: 0.9375rem;
+      font-family: inherit;
+      line-height: 1.7;
+      min-height: 120px;
+      resize: vertical;
+      transition: border-color 0.3s;
+    }
+    .content-input:focus {
+      outline: none;
+      border-color: var(--cyan);
+    }
+    .content-input::placeholder { color: var(--text-dim); }
+
+    .lang-options {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.75rem;
+    }
+    @media (max-width: 768px) { .lang-options { grid-template-columns: repeat(3, 1fr); } }
+    .lang-option {
+      padding: 1rem 0.5rem;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.02);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s;
+      position: relative;
+    }
+    .lang-option:hover { border-color: rgba(0,212,255,0.3); }
+    .lang-option.active {
+      border-color: var(--cyan);
+      background: rgba(0,212,255,0.08);
+    }
+    .lang-option__flag { font-size: 1.5rem; margin-bottom: 0.375rem; }
+    .lang-option__name { font-size: 0.75rem; font-weight: 600; }
+    .lang-option__badge {
+      position: absolute;
+      top: -6px; right: -6px;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--green);
+      color: #fff;
+      font-size: 0.625rem;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .lang-option.active .lang-option__badge { display: flex; }
+
+    .strategy-options {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .strategy-option {
+      padding: 0.5rem 1.25rem;
+      border-radius: 2rem;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .strategy-option:hover { border-color: var(--cyan); color: var(--cyan); }
+    .strategy-option.active {
+      background: var(--cyan);
+      color: var(--bg);
+      border-color: var(--cyan);
+    }
+
+    .generate-btn {
+      display: block;
+      width: 100%;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      border: none;
+      background: linear-gradient(135deg, #00d4ff, #0099cc);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .generate-btn:hover {
+      box-shadow: 0 0 24px rgba(0, 212, 255, 0.3);
+      transform: translateY(-1px);
+    }
+    .generate-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .workflow-section {
+      max-width: min(90vw, 56rem);
+      margin: 0 auto 4rem;
+      padding: 0 1.5rem;
+    }
+    .workflow-placeholder {
+      background: var(--bg-card);
+      border: 2px dashed rgba(255,255,255,0.08);
+      border-radius: 1rem;
+      padding: 4rem 2rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+    .workflow-content {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 1rem;
+      padding: 1.5rem;
+    }
+
+    .workflow-steps {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+    }
+    .wf-step {
+      flex: 1;
+      min-width: 100px;
+      text-align: center;
+      padding: 0.75rem 0.375rem;
+      border-radius: 0.75rem;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: all 0.3s;
+    }
+    .wf-step.active {
+      border-color: var(--cyan);
+      background: rgba(0, 212, 255, 0.08);
+    }
+    .wf-step.completed {
+      border-color: var(--green);
+      background: rgba(16, 185, 129, 0.08);
+    }
+    .wf-step__num {
+      width: 1.625rem; height: 1.625rem;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.6875rem; font-weight: 700;
+      margin: 0 auto 0.375rem;
+    }
+    .wf-step.active .wf-step__num {
+      background: var(--cyan);
+      color: var(--bg);
+    }
+    .wf-step.completed .wf-step__num {
+      background: var(--green);
+      color: #fff;
+    }
+    .wf-step__title { font-size: 0.6875rem; font-weight: 600; }
+    .wf-step__status { font-size: 0.625rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+    .step-work-area {
+      min-height: 320px;
+    }
+
+    .progress-bar-inline {
+      width: 100%;
+      height: 4px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+      margin: 1rem 0;
+      overflow: hidden;
+    }
+    .progress-bar-inline__fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan), #0099cc);
+      border-radius: 2px;
+      transition: width 0.5s ease;
+    }
+
+    /* 步骤1：原文解析 */
+    .parse-result {
+      background: rgba(0,0,0,0.2);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      font-size: 0.9375rem;
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+    .parse-result .highlight-term {
+      background: rgba(0,212,255,0.15);
+      color: var(--cyan);
+      padding: 0 4px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+    .parse-result .highlight-culture {
+      background: rgba(245,158,11,0.15);
+      color: var(--gold);
+      padding: 0 4px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+    .parse-meta {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    @media (max-width: 768px) { .parse-meta { grid-template-columns: repeat(2, 1fr); } }
+    .parse-meta__item {
+      text-align: center;
+      padding: 0.75rem;
+      background: rgba(255,255,255,0.03);
+      border-radius: 0.5rem;
+    }
+    .parse-meta__value {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--cyan);
+    }
+    .parse-meta__label {
+      font-size: 0.6875rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    /* 步骤2：语义理解 */
+    .semantics-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    @media (max-width: 768px) { .semantics-cards { grid-template-columns: 1fr; } }
+    .semantics-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      opacity: 0;
+      transform: translateY(15px);
+      animation: cardIn 0.5s ease forwards;
+    }
+    @keyframes cardIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .semantics-card__icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .semantics-card__title { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .semantics-card__content { font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.6; }
+
+    /* 步骤3：智能翻译 */
+    .translate-pairs {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .translate-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      opacity: 0;
+      transform: translateX(-20px);
+      animation: pairIn 0.4s ease forwards;
+    }
+    @keyframes pairIn {
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .translate-pair__source,
+    .translate-pair__target {
+      padding: 1rem;
+      border-radius: 0.75rem;
+      font-size: 0.875rem;
+      line-height: 1.7;
+    }
+    .translate-pair__source {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      color: var(--text-secondary);
+    }
+    .translate-pair__target {
+      background: rgba(0,212,255,0.05);
+      border: 1px solid rgba(0,212,255,0.15);
+      color: var(--text);
+    }
+    .translate-pair__label {
+      font-size: 0.6875rem;
+      color: var(--text-muted);
+      margin-bottom: 0.375rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .translate-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* 步骤4：本地化适配 */
+    .localize-cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+    @media (max-width: 768px) { .localize-cards { grid-template-columns: 1fr; } }
+    .localize-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      opacity: 0;
+      animation: cardIn 0.5s ease forwards;
+    }
+    .localize-card__icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .localize-card__title { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .localize-card__content { font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.6; }
+    .localize-change {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: rgba(0,212,255,0.05);
+      border-radius: 0.5rem;
+      font-size: 0.75rem;
+    }
+    .localize-change__from { color: var(--text-muted); text-decoration: line-through; }
+    .localize-change__arrow { color: var(--cyan); }
+    .localize-change__to { color: var(--cyan); font-weight: 600; }
+
+    /* 步骤5：质量校验 */
+    .quality-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 768px) { .quality-panel { grid-template-columns: 1fr; } }
+    .quality-metrics {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .quality-metric {
+      background: rgba(255,255,255,0.03);
+      border-radius: 0.75rem;
+      padding: 1rem;
+    }
+    .quality-metric__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .quality-metric__name { font-size: 0.8125rem; font-weight: 600; }
+    .quality-metric__score { font-size: 0.875rem; font-weight: 700; color: var(--green); }
+    .quality-metric__bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .quality-metric__bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--green), #059669);
+      transition: width 1s ease;
+    }
+    .quality-issues {
+      background: rgba(255,255,255,0.03);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+    }
+    .quality-issues__title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+    .quality-issue {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.5rem 0;
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .quality-issue:last-child { border-bottom: none; }
+    .quality-issue__icon { font-size: 1rem; flex-shrink: 0; }
+    .quality-issue__text { line-height: 1.5; }
+
+    /* 步骤6：多版本输出 */
+    .output-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+    }
+    .output-tab {
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.02);
+      color: var(--text-secondary);
+      font-size: 0.8125rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+    .output-tab:hover { border-color: rgba(0,212,255,0.3); }
+    .output-tab.active {
+      background: var(--cyan);
+      color: var(--bg);
+      border-color: var(--cyan);
+    }
+    .output-display {
+      background: rgba(0,0,0,0.2);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      min-height: 200px;
+    }
+    .output-display__lang {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .output-display__title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+    .output-display__body {
+      font-size: 0.9375rem;
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+    .output-meta {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    @media (max-width: 768px) { .output-meta { grid-template-columns: repeat(2, 1fr); } }
+    .output-meta__item {
+      text-align: center;
+    }
+    .output-meta__value {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--cyan);
+    }
+    .output-meta__label {
+      font-size: 0.6875rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+  </style>
+</head>
+<body style="--theme-color: var(--cyan);">
+  <nav class="navbar">
+    <div class="navbar__logo">
+      <div class="navbar__logo-icon">A</div>
+      <span class="navbar__logo-text">AI × 传媒变革</span>
+    </div>
+    <div class="navbar__links">
+      <a href="index.html" class="navbar__link">首页</a>
+      <a href="index.html#topic" class="navbar__link">选题策划</a>
+      <a href="index.html#produce" class="navbar__link navbar__link--active">内容生产</a>
+      <a href="index.html#review" class="navbar__link">审核校对</a>
+      <a href="index.html#distribute" class="navbar__link">智能分发</a>
+      <a href="index.html#insight" class="navbar__link">数据洞察</a>
+      <a href="index.html#future" class="navbar__link">未来展望</a>
+    </div>
+  </nav>
+
+  <section class="detail-hero">
+    <div class="hero__grid-bg"></div>
+    <div class="hero__content">
+      <div class="hero__badge">🌐 多语言适配</div>
+      <h1 class="hero__title">让 AI 成为你的<span style="color: var(--cyan)">全球传播官</span></h1>
+      <p class="hero__subtitle">一键翻译多语种版本，保持语义准确与风格统一<br>智能本地化适配，让内容真正融入当地文化</p>
+    </div>
+  </section>
+
+  <section class="config-section">
+    <div class="config-header">
+      <h2>🌐 翻译配置</h2>
+      <p>选择原文、目标语言和适配策略，AI 将为您完成专业级多语言转换</p>
+    </div>
+    <div class="config-form">
+      <div class="form-group">
+        <label class="form-group__label">快速选择预设原文</label>
+        <div class="preset-selector" id="presetSelector">
+          <div class="preset-chip active" data-preset="news">📰 亚运会数字人新闻</div>
+          <div class="preset-chip" data-preset="review">📱 iPhone 16 评测</div>
+          <div class="preset-chip" data-preset="brand">☕ 品牌故事</div>
+          <div class="preset-chip" data-preset="tech">🤖 AI写作教程</div>
+        </div>
+        <textarea class="content-input" id="contentInput" placeholder="输入需要翻译的中文内容..."></textarea>
+        <div class="form-group__hint">支持各类文本，AI 将自动识别文本类型并匹配最佳翻译策略</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-group__label">目标语言（可多选）</label>
+        <div class="lang-options" id="langOptions">
+          <div class="lang-option active" data-lang="en">
+            <div class="lang-option__badge">✓</div>
+            <div class="lang-option__flag">🇺🇸</div>
+            <div class="lang-option__name">英语</div>
+          </div>
+          <div class="lang-option" data-lang="ja">
+            <div class="lang-option__badge">✓</div>
+            <div class="lang-option__flag">🇯🇵</div>
+            <div class="lang-option__name">日语</div>
+          </div>
+          <div class="lang-option" data-lang="ko">
+            <div class="lang-option__badge">✓</div>
+            <div class="lang-option__flag">🇰🇷</div>
+            <div class="lang-option__name">韩语</div>
+          </div>
+          <div class="lang-option" data-lang="fr">
+            <div class="lang-option__badge">✓</div>
+            <div class="lang-option__flag">🇫🇷</div>
+            <div class="lang-option__name">法语</div>
+          </div>
+          <div class="lang-option" data-lang="es">
+            <div class="lang-option__badge">✓</div>
+            <div class="lang-option__flag">🇪🇸</div>
+            <div class="lang-option__name">西班牙语</div>
+          </div>
+          <div class="lang-option" data-lang="ar">
+            <div class="lang-option__badge">✓</div>
+            <div class="lang-option__flag">🇸🇦</div>
+            <div class="lang-option__name">阿拉伯语</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-group__label">适配策略</label>
+        <div class="strategy-options" id="strategyOptions">
+          <div class="strategy-option" data-strategy="literal">直译优先</div>
+          <div class="strategy-option active" data-strategy="meaning">意译优先</div>
+          <div class="strategy-option" data-strategy="localize">深度本地化</div>
+        </div>
+      </div>
+
+      <button class="generate-btn" id="generateBtn">🌐 开始多语言适配</button>
+    </div>
+  </section>
+
+  <section class="workflow-section">
+    <div class="workflow-placeholder" id="workflowPlaceholder">
+      👆 配置翻译参数后点击"开始多语言适配"，查看 AI 翻译完整工作流
+    </div>
+    <div class="workflow-content" id="workflowContent" style="display:none;">
+      <div class="workflow-steps" id="workflowSteps">
+        <div class="wf-step active" data-step="0">
+          <div class="wf-step__num">1</div>
+          <div class="wf-step__title">原文解析</div>
+          <div class="wf-step__status" id="status0">进行中...</div>
+        </div>
+        <div class="wf-step" data-step="1">
+          <div class="wf-step__num">2</div>
+          <div class="wf-step__title">语义理解</div>
+          <div class="wf-step__status" id="status1">等待</div>
+        </div>
+        <div class="wf-step" data-step="2">
+          <div class="wf-step__num">3</div>
+          <div class="wf-step__title">智能翻译</div>
+          <div class="wf-step__status" id="status2">等待</div>
+        </div>
+        <div class="wf-step" data-step="3">
+          <div class="wf-step__num">4</div>
+          <div class="wf-step__title">本地化适配</div>
+          <div class="wf-step__status" id="status3">等待</div>
+        </div>
+        <div class="wf-step" data-step="4">
+          <div class="wf-step__num">5</div>
+          <div class="wf-step__title">质量校验</div>
+          <div class="wf-step__status" id="status4">等待</div>
+        </div>
+        <div class="wf-step" data-step="5">
+          <div class="wf-step__num">6</div>
+          <div class="wf-step__title">多版本输出</div>
+          <div class="wf-step__status" id="status5">等待</div>
+        </div>
+      </div>
+
+      <div class="progress-bar-inline">
+        <div class="progress-bar-inline__fill" id="overallProgress" style="width:0%"></div>
+      </div>
+
+      <div class="step-work-area" id="stepWorkArea">
+        <!-- 动态内容 -->
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="navbar__logo">
+        <div class="navbar__logo-icon">A</div>
+        <span class="navbar__logo-text">AI × 传媒变革</span>
+      </div>
+      <div class="footer__links">
+        <a href="index.html">首页</a>
+        <a href="#">关于我们</a>
+        <a href="#">联系方式</a>
+      </div>
+      <div class="footer__copyright">© 2026 AI × 传媒变革. 技术引领，探索未来.</div>
+    </div>
+  </footer>
+
+  <script>
+    // ====== 预设原文数据 ======
+    const presetDB = {
+      news: {
+        text: '杭州亚运会开幕式于9月23日晚在杭州奥体中心体育场盛大举行。本届开幕式以"潮起亚细亚"为主题，将千年杭城的诗意韵味与亚运精神的蓬勃朝气巧妙融合。整场开幕式最令人瞩目的，当属数字人"弄潮儿"点燃主火炬的历史性时刻。这位依托前沿AI技术打造的虚拟形象，手持亚运火炬凌空跨越钱塘江，最终在主体育场内精准点燃了圣火。',
+        type: 'news'
+      },
+      review: {
+        text: 'iPhone 16 Pro 深度评测：A18芯片采用台积电第二代3nm工艺，晶体管数量达到190亿。影像系统首次搭载4800万像素超广角镜头，夜景表现尤为出色。全新"相机控制"按键支持轻按对焦、滑动变焦，单手拍摄体验大幅提升。在A18能效优化加持下，Pro Max视频播放时长提升约2小时。',
+        type: 'review'
+      },
+      brand: {
+        text: '2019年春天，三位创业者在上海弄堂里的小咖啡馆相遇。他们走访了云南、海南等国内主要咖啡产区，与20多位咖农建立了直接合作关系。如今，这个起源于弄堂的品牌已在全国开设50多家门店。每一杯咖啡，都是一段关于热爱与坚持的故事。',
+        type: 'brand'
+      },
+      tech: {
+        text: 'AI写作入门：第一步明确写作目标——定义文章主题、受众和核心观点。第二步构建提示词框架——包含背景信息、角色设定、任务描述和输出格式。第三步迭代优化——重点关注事实准确性、逻辑连贯性和品牌调性一致性。将AI作为"第一稿生成器"，人工负责最终把关。',
+        type: 'tech'
+      }
+    };
+
+    // ====== 翻译数据 ======
+    const translationDB = {
+      news: {
+        source: '杭州亚运会开幕式于9月23日晚在杭州奥体中心体育场盛大举行。本届开幕式以"潮起亚细亚"为主题，将千年杭城的诗意韵味与亚运精神的蓬勃朝气巧妙融合。整场开幕式最令人瞩目的，当属数字人"弄潮儿"点燃主火炬的历史性时刻。',
+        segments: [
+          { source: '杭州亚运会开幕式于9月23日晚在杭州奥体中心体育场盛大举行。', en: 'The opening ceremony of the Hangzhou Asian Games was grandly held at the Hangzhou Olympic Sports Center on the evening of September 23.', ja: '杭州アジア競技大会の開会式は、9月23日夜、杭州オリンピック・スポーツセンターで盛大に開催された。', ko: '항저우 아시안게임 개막식이 9월 23일 저녁 항저우 올림픽스포츠센터에서 성대히 열렸다.', fr: 'La cérémonie d\'ouverture des Jeux asiatiques de Hangzhou s\'est tenue en grande pompe au Centre sportif olympique de Hangzhou le soir du 23 septembre.', es: 'La ceremonia de inauguración de los Juegos Asiáticos de Hangzhou se celebró con gran solemnidad en el Centro Deportivo Olímpico de Hangzhou la noche del 23 de septiembre.', ar: 'أقيم حفل افتتاح دورة الألعاب الآسيوية في هانغتشو بجلال في مركز هانغتشو الأولمبي الرياضي مساء يوم 23 سبتمبر.' },
+          { source: '本届开幕式以"潮起亚细亚"为主题，将千年杭城的诗意韵味与亚运精神的蓬勃朝气巧妙融合。', en: 'With "Tides of Asia" as its theme, the ceremony beautifully blended the poetic charm of millennial Hangzhou with the vibrant spirit of the Asian Games.', ja: '「潮起亜細亜」をテーマに、千年の歴史を持つ杭州の詩的な趣きとアジア大会の躍動感が見事に融合した。', ko: '"아시아의 물결"을 주제로 천 년 역사의 항저우의 시적 풍취와 아시안게임의 활기찬 정신이 절묘하게 어우러졌다.', fr: 'Sous le thème « Les marées de l\'Asie », la cérémonie a harmonieusement fusionné le charme poétique de Hangzhou millénaire avec l\'esprit dynamique des Jeux asiatiques.', es: 'Bajo el tema "Mareas de Asia", la ceremonia fusionó bellamente el encanto poético del milenario Hangzhou con el vibrante espíritu de los Juegos Asiáticos.', ar: 'تحت شعار "أمواج آسيا"، امتزج الحفل ببراعة بين السحر الشعري لهانغتشو ذات الألف عام وروح الألعاب الآسيوية النابضة بالحياة.' },
+          { source: '整场开幕式最令人瞩目的，当属数字人"弄潮儿"点燃主火炬的历史性时刻。', en: 'The most spectacular moment was undoubtedly the historic scene where the digital avatar "Chao\'er" ignited the cauldron.', ja: '開会式で最も注目を集めたのは、デジタルヒューマン「弄潮児」が聖火台に火を灯した歴史的瞬間であった。', ko: '개막식에서 가장 주목받은 순간은 단연 디지털 휴먼 "롱차오얼"이 주성화에 불을 붙인 역사적인 장면이었다.', fr: 'Le moment le plus spectaculaire de la cérémonie fut sans aucun doute la scène historique où l\'avatar numérique « Chao\'er » a allumé la vasque olympique.', es: 'El momento más espectacular de toda la ceremonia fue sin duda la histórica escena en que el avatar digital "Chao\'er" encendió el pebetero.', ar: 'كان أكثر المشاهد إثارة في الحفل بلا شك اللحظة التاريخية التي أشعل فيها الص الرقمي "تشاوير" الشعلة الرئيسية.' }
+        ],
+        localization: {
+          en: [{ from: '"弄潮儿"', to: '"Chao\'er" (Tide Rider) —  added transliteration with cultural note' }, { from: '9月23日', to: 'September 23 — date format converted' }],
+          ja: [{ from: '"弄潮儿"', to: '「弄潮児」(ロウチョウジ) —  used kanji with furigana annotation' }, { from: '杭州', to: '杭州（ハンヂョウ）—  added phonetic reading' }],
+          ko: [{ from: '"弄潮儿"', to: '"롱차오얼" —  phonetic transliteration' }, { from: '钱塘江', to: '천탕강 —  converted to Korean geographic naming' }],
+          fr: [{ from: '"潮起亚细亚"', to: '"Les marées de l\'Asie" —  adapted for French poetic sensibility' }, { from: '数字人', to: 'avatar numérique —  used French-preferred term' }],
+          es: [{ from: '"潮起亚细亚"', to: '"Mareas de Asia" —  adapted for Spanish rhythm' }, { from: '主火炬', to: 'pebetero —  used Olympic-standard Spanish term' }],
+          ar: [{ from: '杭州亚运会', to: 'دورة الألعاب الآسيوية في هانغتشو —  reordered for Arabic syntax' }, { from: '钱塘江', to: 'نهر تشيانتانغ —  Arabic transliteration with definite article' }]
+        },
+        quality: { accuracy: 96, fluency: 94, consistency: 98, cultural: 92, terminology: 95 }
+      },
+      review: {
+        source: 'iPhone 16 Pro 深度评测：A18芯片采用台积电第二代3nm工艺，晶体管数量达到190亿。影像系统首次搭载4800万像素超广角镜头，夜景表现尤为出色。全新"相机控制"按键支持轻按对焦、滑动变焦，单手拍摄体验大幅提升。',
+        segments: [
+          { source: 'iPhone 16 Pro 深度评测：A18芯片采用台积电第二代3nm工艺，晶体管数量达到190亿。', en: 'iPhone 16 Pro In-Depth Review: The A18 chip uses TSMC\'s 2nd-gen 3nm process with 19 billion transistors.', ja: 'iPhone 16 Pro 徹底レビュー：A18チップはTSMCの第2世代3nmプロセスを採用し、トランジスタ数は190億個に達する。', ko: 'iPhone 16 Pro 심층 리뷰: A18 칩은 TSMC의 2세대 3nm 공정을 채택해 트랜지스터 수가 190억 개에 달한다.', fr: 'Test approfondi de l\'iPhone 16 Pro : la puce A18 utilise le procédé 3nm de 2e génération de TSMC avec 19 milliards de transistors.', es: 'Análisis a fondo del iPhone 16 Pro: el chip A18 utiliza el proceso de 3nm de segunda generación de TSMC con 19 mil millones de transistores.', ar: 'مراجعة معمقة لـ iPhone 16 Pro: يستخدم شريحة A18 تقنية TSMC ثلاثية النانومتر من الجيل الثاني مع 19 مليار ترانزستور.' },
+          { source: '影像系统首次搭载4800万像素超广角镜头，夜景表现尤为出色。', en: 'The camera system debuts a 48MP ultra-wide lens, with outstanding night-mode performance.', ja: 'カメラシステムは初めて4800万画素の超広角レンズを搭載し、夜景撮影性能が特に優れている。', ko: '카메라 시스템은 처음으로 4800만 화소 초광각 렌즈를 탑재했으며, 야간 촬영 성능이 특히 뛰어나다.', fr: 'Le système photo inaugure un objectif ultra-grand-angle de 48 MP, avec des performances nocturnes particulièrement remarquables.', es: 'El sistema de cámaras estrena un lente ultra gran angular de 48 MP, con un rendimiento nocturno especialmente destacado.', ar: 'يقدم نظام الكاميرا لأول مرة عدسة فائقة الاتساع بدقة 48 ميجابكسل، مع أداء ليلي متميز للغاية.' },
+          { source: '全新"相机控制"按键支持轻按对焦、滑动变焦，单手拍摄体验大幅提升。', en: 'The all-new Camera Control button supports light-press focus and slide-to-zoom, greatly enhancing one-handed shooting.', ja: '新しい「カメラコントロール」ボタンは軽く押してフォーカス、スライドしてズームが可能になり、ワンハンド撮影体験が大幅に向上した。', ko: '새로운 "카메라 컨트롤" 버튼은 살짝 눌러 초점 맞추기, 슬라이드해 줌 기능을 지원해 한 손 촬영 경험이 크게 향상되었다.', fr: 'Le nouveau bouton Contrôle de l\'appareil photo permet la mise au point par pression légère et le zoom par glissement, améliorant considérablement la prise de main.', es: 'El nuevo botón de Control de Cámara admite enfoque con pulsación ligera y zoom deslizante, mejorando enormemente la experiencia de disparo con una mano.', ar: 'يدعم زر التحكم في الكاميرا الجديد الضغط الخفيف للتركيز والتمرير للتكبير، مما يعزز تجربة التصوير بيد واحدة بشكل كبير.' }
+        ],
+        localization: {
+          en: [{ from: '4800万像素', to: '48MP —  used industry-standard abbreviation' }, { from: '台积电', to: 'TSMC —  kept English stock ticker' }],
+          ja: [{ from: '4800万像素', to: '4800万画素 —  used Japanese counter 画素' }, { from: '夜景', to: '夜景撮影 —  expanded for clarity' }],
+          ko: [{ from: '4800万像素', to: '4800만 화소 —  used Korean counter 화소' }, { from: '单手拍摄', to: '한 손 촬영 —  Korean natural expression' }],
+          fr: [{ from: '台积电', to: 'TSMC —  kept internationally recognized name' }, { from: '轻按对焦', to: 'mise au point par pression légère —  French photography terminology' }],
+          es: [{ from: '台积电', to: 'TSMC —  kept internationally recognized name' }, { from: '滑动变焦', to: 'zoom deslizante —  Spanish tech terminology' }],
+          ar: [{ from: '4800万像素', to: '48 ميجابكسل —  used Arabic numeral + transliteration' }, { from: '单手拍摄', to: 'التصوير بيد واحدة —  Arabic natural phrasing' }]
+        },
+        quality: { accuracy: 98, fluency: 95, consistency: 97, cultural: 90, terminology: 99 }
+      },
+      brand: {
+        source: '2019年春天，三位创业者在上海弄堂里的小咖啡馆相遇。他们走访了云南、海南等国内主要咖啡产区，与20多位咖农建立了直接合作关系。如今，这个起源于弄堂的品牌已在全国开设50多家门店。每一杯咖啡，都是一段关于热爱与坚持的故事。',
+        segments: [
+          { source: '2019年春天，三位创业者在上海弄堂里的小咖啡馆相遇。', en: 'In the spring of 2019, three entrepreneurs met at a small café in a Shanghai alleyway.', ja: '2019年春、3人の起業家は上海の路地裏にある小さなカフェで出会った。', ko: '2019년 봄, 세 명의 창업가는 상하이 골목길의 작은 카페에서 만났다.', fr: 'Au printemps 2019, trois entrepreneurs se sont rencontrés dans un petit café d\'une ruelle de Shanghai.', es: 'En la primavera de 2019, tres emprendedores se conocieron en un pequeño café de un callejón de Shanghái.', ar: 'في ربيع عام 2019، التقى ثلاثة رائدين أعمال في مقهى صغير بزقاق في شنغهاي.' },
+          { source: '他们走访了云南、海南等国内主要咖啡产区，与20多位咖农建立了直接合作关系。', en: 'They visited major domestic coffee-producing regions including Yunnan and Hainan, establishing direct partnerships with over 20 coffee farmers.', ja: '雲南省や海南省など国内の主要なコーヒー産地を訪れ、20人以上の農家と直接取引のパートナーシップを構築した。', ko: '윈난, 하이난 등 국내 주요 커피 산지를 방문해 20여 명의 커피 농부와 직접 협력 관계를 구축했다.', fr: 'Ils ont visité les principales régions productrices de café du pays, notamment le Yunnan et le Hainan, établissant des partenariats directs avec plus de 20 producteurs.', es: 'Visitaron las principales regiones productoras de café del país, incluyendo Yunnan y Hainan, estableciendo alianzas directas con más de 20 caficultores.', ar: 'زاروا مناطق إنتاج القهوة الرئيسية في البلاد بما في ذلك يوننان وهاينان، وأقاموا شراكات مباشرة مع أكثر من 20 مزارع قهوة.' },
+          { source: '如今，这个起源于弄堂的品牌已在全国开设50多家门店。每一杯咖啡，都是一段关于热爱与坚持的故事。', en: 'Today, this brand born in an alleyway has opened over 50 stores nationwide. Every cup of coffee tells a story of passion and perseverance.', ja: '現在、この路地裏で生まれたブランドは全国に50店舗以上を展開している。一杯のコーヒーごとに、情熱と忍耐の物語がある。', ko: '이제 이 골목에서 시작된 브랜드는 전국에 50여 개의 매장을 열었다. 매 한 잔의 커피는 열정과 인내에 관한 이야기이다.', fr: 'Aujourd\'hui, cette marque née d\'une ruelle compte plus de 50 boutiques dans tout le pays. Chaque tasse de café raconte une histoire de passion et de persévérance.', es: 'Hoy, esta marca nacida en un callejón ha abierto más de 50 tiendas en todo el país. Cada taza de café cuenta una historia de pasión y perseverancia.', ar: 'اليوم، أصبح لهذه المولودة في زقاق أكثر من 50 متجرًا في جميع أنحاء البلاد. كل فنجان قهوة يروي قصة شغف وإصرار.' }
+        ],
+        localization: {
+          en: [{ from: '弄堂', to: 'alleyway —  added cultural context note' }, { from: '咖农', to: 'coffee farmers —  natural English term' }],
+          ja: [{ from: '弄堂', to: '路地裏 —  used Japanese equivalent with nostalgic nuance' }, { from: '云南、海南', to: '雲南省、海南省 —  added province suffix' }],
+          ko: [{ from: '弄堂', to: '골목길 —  used Korean equivalent' }, { from: '热爱与坚持', to: '열정과 인내 —  Korean emotional expression' }],
+          fr: [{ from: '弄堂', to: 'ruelle —  French intimate urban term' }, { from: '热爱与坚持', to: 'passion et persévérance —  French literary expression' }],
+          es: [{ from: '弄堂', to: 'callejón —  Spanish warm urban term' }, { from: '热爱与坚持', to: 'pasión y perseverancia —  Spanish alliteration preserved' }],
+          ar: [{ from: '弄堂', to: 'زقاق —  Arabic traditional urban term' }, { from: '热爱与坚持', to: 'شغف وإصرار —  Arabic emotional depth preserved' }]
+        },
+        quality: { accuracy: 95, fluency: 96, consistency: 94, cultural: 97, terminology: 93 }
+      },
+      tech: {
+        source: 'AI写作入门：第一步明确写作目标——定义文章主题、受众和核心观点。第二步构建提示词框架——包含背景信息、角色设定、任务描述和输出格式。第三步迭代优化——重点关注事实准确性、逻辑连贯性和品牌调性一致性。',
+        segments: [
+          { source: 'AI写作入门：第一步明确写作目标——定义文章主题、受众和核心观点。', en: 'AI Writing 101: Step 1 — Define your writing goals: article topic, target audience, and core argument.', ja: 'AIライティング入門：ステップ1——ライティング目標を明確にする。記事のテーマ、読者層、核心となる主張を定義する。', ko: 'AI 글쓰기 입문: 1단계——글쓰기 목표를 명확히 한다. 기사 주제, 독자층, 핵심 논점을 정의한다.', fr: 'Introduction à l\'écriture IA : Étape 1 — Définissez vos objectifs : le sujet, l\'audience et l\'argument central.', es: 'Introducción a la escritura con IA: Paso 1 — Define tus objetivos de escritura: tema, audiencia y argumento central.', ar: 'مقدمة في الكتابة بالذكاء الاصطناعي: الخطوة 1 — حدد أهداف الكتابة: موضوع المقال والجمهور والحجة الأساسية.' },
+          { source: '第二步构建提示词框架——包含背景信息、角色设定、任务描述和输出格式。', en: 'Step 2 — Build your prompt framework: context, persona, task description, and output format.', ja: 'ステップ2——プロンプトフレームワークを構築する。背景情報、役割設定、タスクの説明、出力形式を含める。', ko: '2단계——프롬프트 프레임워크를 구축한다. 배경 정보, 역할 설정, 작업 설명, 출력 형식을 포함한다.', fr: 'Étape 2 — Construisez votre cadre de prompt : contexte, persona, description de la tâche et format de sortie.', es: 'Paso 2 — Construye tu marco de prompts: contexto, personaje, descripción de la tarea y formato de salida.', ar: 'الخطوة 2 — ابنِ إطار التعليمات: السياق والشخصية ووصف المهمة وتنسيق المخرجات.' },
+          { source: '第三步迭代优化——重点关注事实准确性、逻辑连贯性和品牌调性一致性。', en: 'Step 3 — Iterate and refine, focusing on factual accuracy, logical coherence, and brand voice consistency.', ja: 'ステップ3——反復最適化を行う。事実の正確性、論理的一貫性、ブランドトーンの整合性に重点を置く。', ko: '3단계——반복 최적화를 수행한다. 사실 정확성, 논리적 일관성, 브랜드 톤 일치에 중점을 둔다.', fr: 'Étape 3 — Itérez et affinez, en vous concentrant sur l\'exactitude factuelle, la cohérence logique et la cohérence de la voix de marque.', es: 'Paso 3 — Itera y refina, enfocándote en la precisión factual, la coherencia lógica y la consistencia del tono de marca.', ar: 'الخطوة 3 — كرر وحسن، مع التركيز على الدقة الواقعية والتماسك المنطقي واتساق نبرة العلامة التجارية.' }
+        ],
+        localization: {
+          en: [{ from: '提示词', to: 'prompt —  used standard English AI term' }, { from: '品牌调性', to: 'brand voice —  marketing industry term' }],
+          ja: [{ from: '提示词', to: 'プロンプト —  transliterated standard term' }, { from: '品牌调性', to: 'ブランドトーン —  Japanese marketing term' }],
+          ko: [{ from: '提示词', to: '프롬프트 —  Korean standard transliteration' }, { from: '品牌调性', to: '브랜드 톤 —  Korean marketing term' }],
+          fr: [{ from: '提示词', to: 'prompt —  adopted English term in French tech' }, { from: '迭代优化', to: 'itérer et affiner —  French natural expression' }],
+          es: [{ from: '提示词', to: 'prompt —  adopted English term in Spanish tech' }, { from: '迭代优化', to: 'itera y refina —  Spanish imperative style for tutorials' }],
+          ar: [{ from: '提示词', to: 'التعليمات —  Arabic AI terminology' }, { from: '迭代优化', to: 'كرر وحسن —  Arabic instructional style' }]
+        },
+        quality: { accuracy: 97, fluency: 93, consistency: 96, cultural: 89, terminology: 98 }
+      }
+    };
+
+    // ====== 状态 ======
+    let selectedPreset = 'news';
+    let selectedLangs = new Set(['en']);
+    let selectedStrategy = 'meaning';
+    let currentStep = -1;
+    let isRunning = false;
+    let firstTargetLang = 'en';
+
+    // ====== DOM ======
+    const presetChips = document.querySelectorAll('.preset-chip');
+    const contentInput = document.getElementById('contentInput');
+    const langOptions = document.querySelectorAll('.lang-option');
+    const strategyOptions = document.querySelectorAll('.strategy-option');
+    const generateBtn = document.getElementById('generateBtn');
+    const placeholderEl = document.getElementById('workflowPlaceholder');
+    const contentEl = document.getElementById('workflowContent');
+    const workArea = document.getElementById('stepWorkArea');
+    const progressEl = document.getElementById('overallProgress');
+
+    // 初始化
+    contentInput.value = presetDB[selectedPreset].text;
+
+    // ====== 预设选择 ======
+    presetChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        presetChips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        selectedPreset = chip.dataset.preset;
+        contentInput.value = presetDB[selectedPreset].text;
+      });
+    });
+
+    // ====== 语言选择 ======
+    langOptions.forEach(opt => {
+      opt.addEventListener('click', () => {
+        const key = opt.dataset.lang;
+        if (selectedLangs.has(key)) {
+          if (selectedLangs.size > 1) {
+            selectedLangs.delete(key);
+            opt.classList.remove('active');
+          }
+        } else {
+          selectedLangs.add(key);
+          opt.classList.add('active');
+        }
+      });
+    });
+
+    // ====== 策略选择 ======
+    strategyOptions.forEach(opt => {
+      opt.addEventListener('click', () => {
+        strategyOptions.forEach(o => o.classList.remove('active'));
+        opt.classList.add('active');
+        selectedStrategy = opt.dataset.strategy;
+      });
+    });
+
+    // ====== 开始 ======
+    generateBtn.addEventListener('click', () => {
+      if (isRunning) return;
+      const content = contentInput.value.trim();
+      if (!content || content.length < 10) {
+        contentInput.style.borderColor = '#ef4444';
+        setTimeout(() => contentInput.style.borderColor = '', 1000);
+        return;
+      }
+      firstTargetLang = Array.from(selectedLangs)[0];
+      startWorkflow();
+    });
+
+    function startWorkflow() {
+      isRunning = true;
+      generateBtn.disabled = true;
+      generateBtn.textContent = '⏳ 多语言适配中...';
+      placeholderEl.style.display = 'none';
+      contentEl.style.display = 'block';
+      currentStep = 0;
+      updateStepVisuals();
+      runStep0();
+    }
+
+    function updateStepVisuals() {
+      document.querySelectorAll('.wf-step').forEach((s, i) => {
+        s.classList.remove('active', 'completed');
+        if (i < currentStep) s.classList.add('completed');
+        else if (i === currentStep) s.classList.add('active');
+      });
+      const pct = ((currentStep + 1) / 6) * 100;
+      progressEl.style.width = pct + '%';
+    }
+
+    function setStatus(step, text) {
+      document.getElementById('status' + step).textContent = text;
+    }
+
+    function getTransData() {
+      return translationDB[selectedPreset] || translationDB.news;
+    }
+
+    function getLangName(key) {
+      const map = { en: '英语', ja: '日语', ko: '韩语', fr: '法语', es: '西班牙语', ar: '阿拉伯语' };
+      return map[key] || key;
+    }
+
+    function getLangFlag(key) {
+      const map = { en: '🇺🇸', ja: '🇯🇵', ko: '🇰🇷', fr: '🇫🇷', es: '🇪🇸', ar: '🇸🇦' };
+      return map[key] || '🌐';
+    }
+
+    // ====== 步骤0：原文解析 ======
+    function runStep0() {
+      currentStep = 0;
+      updateStepVisuals();
+      setStatus(0, '解析中...');
+      const data = getTransData();
+
+      workArea.innerHTML = `
+        <div style="margin-bottom:0.75rem;color:var(--cyan);font-size:0.875rem;font-weight:600;"
+          >🔍 正在解析原文结构...</div>
+        <div class="parse-result" id="parseResult" style="opacity:0;transition:opacity 0.5s ease;">
+          ${highlightText(data.source)}
+        </div>
+        <div class="parse-meta" id="parseMeta" style="opacity:0;transition:opacity 0.5s ease 0.3s;">
+          <div class="parse-meta__item">
+            <div class="parse-meta__value">${data.segments.length}</div>
+            <div class="parse-meta__label">语义单元</div>
+          </div>
+          <div class="parse-meta__item">
+            <div class="parse-meta__value">${countCulturalTerms(data.source)}</div>
+            <div class="parse-meta__label">文化特定表达</div>
+          </div>
+          <div class="parse-meta__item">
+            <div class="parse-meta__value">${countTerms(data.source)}</div>
+            <div class="parse-meta__label">专业术语</div>
+          </div>
+          <div class="parse-meta__item">
+            <div class="parse-meta__value">${selectedLangs.size}</div>
+            <div class="parse-meta__label">目标语言</div>
+          </div>
+        </div>
+      `;
+
+      setTimeout(() => {
+        document.getElementById('parseResult').style.opacity = '1';
+      }, 100);
+      setTimeout(() => {
+        document.getElementById('parseMeta').style.opacity = '1';
+        setStatus(0, '✅ 完成');
+        setTimeout(runStep1, 1000);
+      }, 600);
+    }
+
+    function highlightText(text) {
+      // 简单高亮一些术语和文化表达
+      return text
+        .replace(/(杭州|亚运会|钱塘江|弄潮儿|云南|海南|弄堂)/g, '<span class="highlight-culture">$1</span>')
+        .replace(/(iPhone 16|A18芯片|3nm|台积电|4800万|AI|数字人)/g, '<span class="highlight-term">$1</span>');
+    }
+
+    function countCulturalTerms(text) {
+      const matches = text.match(/(杭州|亚运会|钱塘江|弄潮儿|云南|海南|弄堂|上海|咖农)/g);
+      return matches ? matches.length : 2;
+    }
+
+    function countTerms(text) {
+      const matches = text.match(/(iPhone|A18|芯片|3nm|台积电|4800万|AI|数字人|像素|光学)/gi);
+      return matches ? matches.length : 3;
+    }
+
+    // ====== 步骤1：语义理解 ======
+    function runStep1() {
+      currentStep = 1;
+      updateStepVisuals();
+      setStatus(1, '分析中...');
+      const presets = {
+        news: { intent: '信息传递 + 情感共鸣', emotion: '自豪、振奋', domain: '体育 × 科技', complexity: '中等' },
+        review: { intent: '专业评估 + 购买建议', emotion: '客观、理性', domain: '科技 × 消费', complexity: '较高' },
+        brand: { intent: '品牌叙事 + 情感连接', emotion: '温暖、真诚', domain: '生活方式 × 人文', complexity: '中等' },
+        tech: { intent: '知识传授 + 操作指导', emotion: '清晰、实用', domain: '教育 × 技术', complexity: '中等' }
+      };
+      const info = presets[selectedPreset] || presets.news;
+
+      workArea.innerHTML = `
+        <div style="margin-bottom:1rem;color:var(--cyan);font-size:0.875rem;font-weight:600;"
+          >🧠 AI 正在理解原文语义...</div>
+        <div class="semantics-cards">
+          <div class="semantics-card" style="animation-delay:0s;">
+            <div class="semantics-card__icon">🎯</div>
+            <div class="semantics-card__title">交际意图</div>
+            <div class="semantics-card__content">${info.intent}</div>
+          </div>
+          <div class="semantics-card" style="animation-delay:0.2s;">
+            <div class="semantics-card__icon">💭</div>
+            <div class="semantics-card__title">情感基调</div>
+            <div class="semantics-card__content">${info.emotion}</div>
+          </div>
+          <div class="semantics-card" style="animation-delay:0.4s;">
+            <div class="semantics-card__icon">📚</div>
+            <div class="semantics-card__title">领域特征</div>
+            <div class="semantics-card__content">${info.domain}<br>复杂度: ${info.complexity}</div>
+          </div>
+        </div>
+        <div style="margin-top:1rem;padding:1rem;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.15);border-radius:0.75rem;">
+          <div style="font-size:0.875rem;color:var(--text-secondary);line-height:1.7;">
+            <strong style="color:var(--cyan);">📋 翻译策略：</strong>基于语义分析，AI 将采用「${getStrategyLabel(selectedStrategy)}」策略，
+            针对 ${selectedLangs.size} 种目标语言分别制定适配方案，确保语义准确性与文化适切性。
+          </div>
+        </div>
+      `;
+
+      setTimeout(() => {
+        setStatus(1, '✅ 完成');
+        setTimeout(runStep2, 1200);
+      }, 1200);
+    }
+
+    function getStrategyLabel(key) {
+      const map = { literal: '直译优先（忠实原文结构）', meaning: '意译优先（灵活传达语义）', localize: '深度本地化（融入目标文化）' };
+      return map[key] || key;
+    }
+
+    // ====== 步骤2：智能翻译 ======
+    function runStep2() {
+      currentStep = 2;
+      updateStepVisuals();
+      setStatus(2, '翻译中...');
+      const data = getTransData();
+      const lang = firstTargetLang;
+
+      workArea.innerHTML = `
+        <div style="margin-bottom:0.75rem;color:var(--cyan);font-size:0.875rem;font-weight:600;"
+          >🔄 正在进行 ${getLangName(lang)} 智能翻译...</div>
+        <div class="translate-header">
+          <div>原文（中文）</div>
+          <div>译文（${getLangName(lang)}）</div>
+        </div>
+        <div class="translate-pairs" id="translatePairs"></div>
+      `;
+
+      const pairsEl = document.getElementById('translatePairs');
+      let i = 0;
+
+      function addPair() {
+        if (i >= data.segments.length) {
+          setStatus(2, '✅ 完成');
+          setTimeout(runStep3, 1000);
+          return;
+        }
+        const seg = data.segments[i];
+        const div = document.createElement('div');
+        div.className = 'translate-pair';
+        div.style.animationDelay = '0s';
+        div.innerHTML = `
+          <div class="translate-pair__source">
+            <div class="translate-pair__label">原文</div>
+            ${seg.source}
+          </div>
+          <div class="translate-pair__target">
+            <div class="translate-pair__label">${getLangFlag(lang)} ${getLangName(lang)}</div>
+            ${seg[lang]}
+          </div>
+        `;
+        pairsEl.appendChild(div);
+        i++;
+        setTimeout(addPair, 600);
+      }
+      addPair();
+    }
+
+    // ====== 步骤3：本地化适配 ======
+    function runStep3() {
+      currentStep = 3;
+      updateStepVisuals();
+      setStatus(3, '适配中...');
+      const data = getTransData();
+      const lang = firstTargetLang;
+      const items = data.localization[lang] || [];
+
+      let html = `
+        <div style="margin-bottom:0.75rem;color:var(--cyan);font-size:0.875rem;font-weight:600;"
+          >🌍 正在进行 ${getLangName(lang)} 本地化适配...</div>
+        <div class="localize-cards">
+      `;
+
+      const cards = [
+        { icon: '🏷️', title: '术语标准化', desc: '统一专业术语翻译，确保行业规范性', delay: 0 },
+        { icon: '📅', title: '格式本地化', desc: '日期、数字、货币格式转换为目标语言惯例', delay: 0.2 },
+        { icon: '🎭', title: '文化调适', desc: '调整文化隐喻和表达方式，增强本土接受度', delay: 0.4 },
+        { icon: '📝', title: '风格优化', desc: '根据目标语言修辞习惯优化句式结构', delay: 0.6 }
+      ];
+
+      cards.forEach((card, idx) => {
+        const item = items[idx];
+        html += `
+          <div class="localize-card" style="animation-delay:${card.delay}s;">
+            <div class="localize-card__icon">${card.icon}</div>
+            <div class="localize-card__title">${card.title}</div>
+            <div class="localize-card__content">${card.desc}</div>
+            ${item ? `
+              <div class="localize-change">
+                <span class="localize-change__from">${item.from}</span>
+                <span class="localize-change__arrow">→</span>
+                <span class="localize-change__to">${item.to}</span>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      });
+
+      html += '</div>';
+      workArea.innerHTML = html;
+
+      setTimeout(() => {
+        setStatus(3, '✅ 完成');
+        setTimeout(runStep4, 1200);
+      }, 1200);
+    }
+
+    // ====== 步骤4：质量校验 ======
+    function runStep4() {
+      currentStep = 4;
+      updateStepVisuals();
+      setStatus(4, '校验中...');
+      const data = getTransData();
+      const q = data.quality;
+
+      workArea.innerHTML = `
+        <div style="margin-bottom:0.75rem;color:var(--cyan);font-size:0.875rem;font-weight:600;"
+          >✅ 正在进行质量校验...</div>
+        <div class="quality-panel">
+          <div class="quality-metrics">
+            <div class="quality-metric">
+              <div class="quality-metric__header">
+                <span class="quality-metric__name">语义准确性</span>
+                <span class="quality-metric__score">${q.accuracy}%</span>
+              </div>
+              <div class="quality-metric__bar">
+                <div class="quality-metric__bar-fill" style="width:0%" data-width="${q.accuracy}%"></div>
+              </div>
+            </div>
+            <div class="quality-metric">
+              <div class="quality-metric__header">
+                <span class="quality-metric__name">语言流畅度</span>
+                <span class="quality-metric__score">${q.fluency}%</span>
+              </div>
+              <div class="quality-metric__bar">
+                <div class="quality-metric__bar-fill" style="width:0%" data-width="${q.fluency}%"></div>
+              </div>
+            </div>
+            <div class="quality-metric">
+              <div class="quality-metric__header">
+                <span class="quality-metric__name">术语一致性</span>
+                <span class="quality-metric__score">${q.consistency}%</span>
+              </div>
+              <div class="quality-metric__bar">
+                <div class="quality-metric__bar-fill" style="width:0%" data-width="${q.consistency}%"></div>
+              </div>
+            </div>
+            <div class="quality-metric">
+              <div class="quality-metric__header">
+                <span class="quality-metric__name">文化适切性</span>
+                <span class="quality-metric__score">${q.cultural}%</span>
+              </div>
+              <div class="quality-metric__bar">
+                <div class="quality-metric__bar-fill" style="width:0%" data-width="${q.cultural}%"></div>
+              </div>
+            </div>
+            <div class="quality-metric">
+              <div class="quality-metric__header">
+                <span class="quality-metric__name">术语专业性</span>
+                <span class="quality-metric__score">${q.terminology}%</span>
+              </div>
+              <div class="quality-metric__bar">
+                <div class="quality-metric__bar-fill" style="width:0%" data-width="${q.terminology}%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="quality-issues">
+            <div class="quality-issues__title">🔍 自动检测结果</div>
+            <div class="quality-issue">
+              <span class="quality-issue__icon">✅</span>
+              <span class="quality-issue__text">术语一致性检查通过，未发现冲突翻译</span>
+            </div>
+            <div class="quality-issue">
+              <span class="quality-issue__icon">✅</span>
+              <span class="quality-issue__text">语法结构分析通过，目标语句式自然</span>
+            </div>
+            <div class="quality-issue">
+              <span class="quality-issue__icon">⚠️</span>
+              <span class="quality-issue__text">建议复核：1 处文化隐喻可能需要进一步本地化</span>
+            </div>
+            <div class="quality-issue">
+              <span class="quality-issue__icon">✅</span>
+              <span class="quality-issue__text">标点格式已自动转换为目标语言规范</span>
+            </div>
+          </div>
+        </div>
+      `;
+
+      setTimeout(() => {
+        document.querySelectorAll('.quality-metric__bar-fill').forEach(bar => {
+          bar.style.width = bar.dataset.width;
+        });
+        setStatus(4, '✅ 完成');
+        setTimeout(runStep5, 1500);
+      }, 500);
+    }
+
+    // ====== 步骤5：多版本输出 ======
+    function runStep5() {
+      currentStep = 5;
+      updateStepVisuals();
+      setStatus(5, '输出中...');
+      const data = getTransData();
+      const langs = Array.from(selectedLangs);
+
+      let tabsHtml = '';
+      langs.forEach((lang, idx) => {
+        tabsHtml += `
+          <div class="output-tab ${idx === 0 ? 'active' : ''}" data-lang="${lang}" onclick="switchLang('${lang}')">
+            ${getLangFlag(lang)} ${getLangName(lang)}
+          </div>
+        `;
+      });
+
+      workArea.innerHTML = `
+        <div style="margin-bottom:0.75rem;color:var(--cyan);font-size:0.875rem;font-weight:600;"
+          >🎉 多语言版本生成完成！</div>
+        <div class="output-tabs">${tabsHtml}</div>
+        <div id="outputDisplays"></div>
+      `;
+
+      const displaysEl = document.getElementById('outputDisplays');
+      langs.forEach((lang, idx) => {
+        const seg = data.segments[0];
+        const div = document.createElement('div');
+        div.className = 'output-display';
+        div.id = `output-${lang}`;
+        div.style.display = idx === 0 ? 'block' : 'none';
+        div.innerHTML = `
+          <div class="output-display__lang">${getLangFlag(lang)} ${getLangName(lang)} · ${getStrategyLabel(selectedStrategy)}</div>
+          <div class="output-display__title">${seg[lang].split('：')[0] || seg[lang].substring(0, 30)}</div>
+          <div class="output-display__body">${data.segments.map(s => s[lang]).join('<br><br>')}</div>
+          <div class="output-meta">
+            <div class="output-meta__item">
+              <div class="output-meta__value">${data.quality.accuracy}%</div>
+              <div class="output-meta__label">准确度</div>
+            </div>
+            <div class="output-meta__item">
+              <div class="output-meta__value">${data.quality.fluency}%</div>
+              <div class="output-meta__label">流畅度</div>
+            </div>
+            <div class="output-meta__item">
+              <div class="output-meta__value">${data.segments.length}</div>
+              <div class="output-meta__label">段落数</div>
+            </div>
+            <div class="output-meta__item">
+              <div class="output-meta__value">✓</div>
+              <div class="output-meta__label">已通过校验</div>
+            </div>
+          </div>
+        `;
+        displaysEl.appendChild(div);
+      });
+
+      setStatus(5, '✅ 完成');
+      isRunning = false;
+      generateBtn.disabled = false;
+      generateBtn.textContent = '🌐 再次适配';
+    }
+
+    // 全局函数供 onclick 调用
+    window.switchLang = function(lang) {
+      document.querySelectorAll('.output-tab').forEach(t => t.classList.toggle('active', t.dataset.lang === lang));
+      document.querySelectorAll('.output-display').forEach(d => {
+        d.style.display = d.id === `output-${lang}` ? 'block' : 'none';
+      });
+    };
+  </script>
+</body>
+</html>
