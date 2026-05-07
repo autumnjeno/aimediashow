@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI选题推荐演示系统——媒体定位匹配、受众画像分析、智能选题推荐">
+  <title>选题推荐 | AI × 传媒变革</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    .detail-hero {
+      min-height: 40vh; padding-top: 5rem;
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      background:
+        radial-gradient(ellipse at 50% 30%, color-mix(in srgb, var(--theme-color) 8%, transparent) 0%, transparent 60%),
+        radial-gradient(ellipse at 20% 70%, rgba(124, 58, 237, 0.06) 0%, transparent 50%);
+    }
+    .dashboard-section {
+      max-width: min(90vw, 72rem);
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+    .dashboard-header { text-align: center; margin-bottom: 2rem; }
+    .dashboard-header h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin-bottom: 0.5rem; }
+    .dashboard-header p { color: var(--text-secondary); font-size: 0.9375rem; }
+
+    .profile-selector {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 768px) { .profile-selector { grid-template-columns: 1fr; } }
+
+    .profile-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .profile-card:hover {
+      border-color: rgba(249, 115, 22, 0.3);
+      transform: translateY(-2px);
+    }
+    .profile-card.active {
+      border-color: var(--orange);
+      box-shadow: 0 0 20px rgba(249, 115, 22, 0.15);
+    }
+    .profile-card__icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .profile-card__title { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .profile-card__desc { font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.6; }
+
+    .analysis-section {
+      max-width: min(90vw, 72rem);
+      margin: 0 auto 4rem;
+      padding: 0 1.5rem;
+    }
+    .analysis-placeholder {
+      background: var(--bg-card);
+      border: 2px dashed rgba(255,255,255,0.08);
+      border-radius: 1rem;
+      padding: 4rem 2rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+    .analysis-content {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 1rem;
+      padding: 1.5rem;
+    }
+
+    .rec-steps {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+    }
+    .rec-step {
+      flex: 1;
+      min-width: 140px;
+      text-align: center;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: all 0.3s;
+    }
+    .rec-step.active {
+      border-color: var(--orange);
+      background: rgba(249, 115, 22, 0.08);
+    }
+    .rec-step__num {
+      width: 2rem; height: 2rem;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.875rem; font-weight: 700;
+      margin: 0 auto 0.5rem;
+    }
+    .rec-step.active .rec-step__num {
+      background: var(--orange);
+      color: #fff;
+    }
+    .rec-step__title { font-size: 0.8125rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .rec-step__desc { font-size: 0.6875rem; color: var(--text-muted); }
+
+    .chart-wrapper { position: relative; height: 280px; margin: 1rem 0; }
+    @media (max-width: 768px) { .chart-wrapper { height: 220px; } }
+
+    .recommendation-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .rec-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: rgba(255,255,255,0.03);
+      border-radius: 0.75rem;
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: all 0.3s;
+    }
+    .rec-item:hover {
+      border-color: rgba(249, 115, 22, 0.2);
+    }
+    .rec-item__score {
+      width: 3.5rem; height: 3.5rem;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .rec-item__score.high {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--green);
+    }
+    .rec-item__score.medium {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--gold);
+    }
+    .rec-item__info { flex: 1; }
+    .rec-item__title { font-size: 0.9375rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .rec-item__meta { font-size: 0.75rem; color: var(--text-muted); }
+    .rec-item__tags {
+      display: flex; gap: 0.375rem;
+      flex-wrap: wrap;
+      margin-top: 0.375rem;
+    }
+    .rec-item__tag {
+      font-size: 0.6875rem;
+      padding: 0.125rem 0.5rem;
+      border-radius: 0.25rem;
+      background: rgba(255,255,255,0.05);
+      color: var(--text-muted);
+    }
+
+    .match-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    @media (max-width: 768px) { .match-summary { grid-template-columns: 1fr; } }
+    .match-card {
+      text-align: center;
+      padding: 1rem;
+      background: rgba(255,255,255,0.03);
+      border-radius: 0.75rem;
+    }
+    .match-card__value {
+      font-size: 1.75rem; font-weight: 700; color: var(--orange);
+    }
+    .match-card__label {
+      font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;
+    }
+  </style>
+</head>
+<body style="--theme-color: var(--orange);">
+  <nav class="navbar">
+    <div class="navbar__logo">
+      <div class="navbar__logo-icon">A</div>
+      <span class="navbar__logo-text">AI × 传媒变革</span>
+    </div>
+    <div class="navbar__links">
+      <a href="index.html" class="navbar__link">首页</a>
+      <a href="index.html#topic" class="navbar__link navbar__link--active">选题策划</a>
+      <a href="index.html#produce" class="navbar__link">内容生产</a>
+      <a href="index.html#review" class="navbar__link">审核校对</a>
+      <a href="index.html#distribute" class="navbar__link">智能分发</a>
+      <a href="index.html#insight" class="navbar__link">数据洞察</a>
+      <a href="index.html#future" class="navbar__link">未来展望</a>
+    </div>
+  </nav>
+
+  <section class="detail-hero">
+    <div class="hero__grid-bg"></div>
+    <div class="hero__content">
+      <div class="hero__badge">💡 选题推荐</div>
+      <h1 class="hero__title">让 AI 为你推荐<span style="color: var(--orange)">高价值选题</span></h1>
+      <p class="hero__subtitle">结合媒体定位与受众画像，智能匹配最具传播潜力的选题方向</p>
+    </div>
+  </section>
+
+  <section class="dashboard-section">
+    <div class="dashboard-header">
+      <h2>💡 选择媒体画像</h2>
+      <p>AI 将根据媒体定位，为您匹配最适合的选题方向</p>
+    </div>
+    <div class="profile-selector" id="profileSelector">
+      <div class="profile-card" data-profile="news">
+        <div class="profile-card__icon">📰</div>
+        <div class="profile-card__title">综合新闻媒体</div>
+        <div class="profile-card__desc">追求时效性与公信力的综合新闻平台，受众覆盖广泛，关注社会热点与公共议题</div>
+      </div>
+      <div class="profile-card" data-profile="finance">
+        <div class="profile-card__icon">💹</div>
+        <div class="profile-card__title">财经商业媒体</div>
+        <div class="profile-card__desc">聚焦商业动态、投资市场与产业变革，受众以专业人士和高净值人群为主</div>
+      </div>
+      <div class="profile-card" data-profile="tech">
+        <div class="profile-card__icon">🔬</div>
+        <div class="profile-card__title">科技数码媒体</div>
+        <div class="profile-card__desc">关注前沿科技、产品评测与行业深度，受众以年轻极客和从业者为主</div>
+      </div>
+      <div class="profile-card" data-profile="life">
+        <div class="profile-card__icon">🌿</div>
+        <div class="profile-card__title">生活方式媒体</div>
+        <div class="profile-card__desc">聚焦消费趋势、文化娱乐与生活美学，受众以都市年轻群体为主</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="analysis-section">
+    <div class="analysis-placeholder" id="analysisPlaceholder">
+      👆 选择上方媒体画像，查看 AI 选题推荐全流程
+    </div>
+    <div class="analysis-content" id="analysisContent" style="display:none;">
+      <div class="rec-steps" id="recSteps">
+        <div class="rec-step active" data-step="0">
+          <div class="rec-step__num">1</div>
+          <div class="rec-step__title">定位匹配</div>
+          <div class="rec-step__desc">媒体风格与价值观</div>
+        </div>
+        <div class="rec-step" data-step="1">
+          <div class="rec-step__num">2</div>
+          <div class="rec-step__title">受众分析</div>
+          <div class="rec-step__desc">用户兴趣与需求画像</div>
+        </div>
+        <div class="rec-step" data-step="2">
+          <div class="rec-step__num">3</div>
+          <div class="rec-step__title">竞品监测</div>
+          <div class="rec-step__desc">差异化竞争分析</div>
+        </div>
+        <div class="rec-step" data-step="3">
+          <div class="rec-step__num">4</div>
+          <div class="rec-step__title">选题推荐</div>
+          <div class="rec-step__desc">智能匹配高价值选题</div>
+        </div>
+      </div>
+
+      <div class="step-content" id="stepContent"></div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="navbar__logo">
+        <div class="navbar__logo-icon">A</div>
+        <span class="navbar__logo-text">AI × 传媒变革</span>
+      </div>
+      <div class="footer__links">
+        <a href="index.html">首页</a>
+        <a href="#">关于我们</a>
+        <a href="#">联系方式</a>
+      </div>
+      <div class="footer__copyright">© 2026 AI × 传媒变革. 技术引领，探索未来.</div>
+    </div>
+  </footer>
+
+  <script>
+    const profiles = {
+      news: {
+        name: '综合新闻媒体',
+        focus: ['社会热点', '公共政策', '突发事件', '民生议题'],
+        audience: { age: '25-45岁', city: '一二线城市', edu: '本科及以上' },
+        competitors: ['澎湃新闻', '南方周末', '新京报'],
+        recommendations: [
+          { title: '某地出台楼市新政，市场预期几何？', score: 95, tags: ['政策', '民生', '深度'], reason: '与媒体定位高度契合，受众关注度高' },
+          { title: '预制菜进校园引发家长集体担忧', score: 92, tags: ['社会', '健康', '争议'], reason: '民生敏感话题，适合深度调查报道' },
+          { title: '杭州亚运会开幕式背后的技术创新', score: 88, tags: ['体育', '科技', '人文'], reason: '大型赛事+科技视角，差异化报道角度' },
+          { title: '00后职场新观：整顿还是重构？', score: 82, tags: ['职场', '代际', '社会'], reason: '代际话题持续发酵，适合评论专栏' }
+        ]
+      },
+      finance: {
+        name: '财经商业媒体',
+        focus: ['资本市场', '产业变革', '宏观经济', '企业动态'],
+        audience: { age: '30-50岁', city: '北上广深', edu: '硕士及以上' },
+        competitors: ['财新', '第一财经', '华尔街见闻'],
+        recommendations: [
+          { title: 'iPhone 16 发布会：苹果的创新焦虑', score: 94, tags: ['科技', '消费', '商业'], reason: '科技+商业双重视角，符合读者专业需求' },
+          { title: '国产3A游戏崛起：文化输出新路径', score: 90, tags: ['游戏', '文化', '投资'], reason: '文化产业投资热点，兼具话题性和专业性' },
+          { title: '多地楼市新政出台，对股市影响几何？', score: 87, tags: ['政策', '地产', '股市'], reason: '政策联动分析，适合专业投资者阅读' },
+          { title: '预制菜产业万亿赛道：投资机会与风险', score: 83, tags: ['消费', '投资', '产业'], reason: '产业视角切入，适合行业分析专栏' }
+        ]
+      },
+      tech: {
+        name: '科技数码媒体',
+        focus: ['前沿技术', '产品评测', '行业深度', '极客文化'],
+        audience: { age: '20-35岁', city: '新一线+二线', edu: '本科及以上' },
+        competitors: ['36氪', '虎嗅', '爱范儿'],
+        recommendations: [
+          { title: 'iPhone 16 深度评测：A18芯片性能解析', score: 96, tags: ['评测', '芯片', '苹果'], reason: '首发评测，搜索流量大，符合核心受众需求' },
+          { title: '国产3A游戏引擎技术拆解', score: 93, tags: ['游戏', '技术', '深度'], reason: '技术拆解类内容，极客群体高度认可' },
+          { title: '杭州亚运会数字人点火技术揭秘', score: 89, tags: ['AI', '体育', '应用'], reason: 'AI落地应用案例，技术与场景结合' },
+          { title: 'AI大模型在新闻生产中的落地实践', score: 85, tags: ['AI', '媒体', '应用'], reason: '行业应用趋势，适合从业者阅读' }
+        ]
+      },
+      life: {
+        name: '生活方式媒体',
+        focus: ['消费趋势', '文化娱乐', '生活美学', '潮流时尚'],
+        audience: { age: '22-35岁', city: '一二线城市', edu: '本科' },
+        competitors: ['GQ', '一条', '新世相'],
+        recommendations: [
+          { title: '特种兵式旅游：年轻人的旅行新范式', score: 93, tags: ['旅游', '年轻', '生活方式'], reason: '生活方式话题，与年轻受众高度共鸣' },
+          { title: '秋日美拉德穿搭：从秀场到街头', score: 90, tags: ['时尚', '穿搭', '季节'], reason: '季节性时尚话题，适合视觉化内容' },
+          { title: 'iPhone 16 新色评测：钛金属美学', score: 86, tags: ['科技', '美学', '消费'], reason: '科技产品美学角度，差异化切入' },
+          { title: '国产3A游戏：东方美学的数字表达', score: 84, tags: ['游戏', '文化', '美学'], reason: '文化美学视角，适合深度人文报道' }
+        ]
+      }
+    };
+
+    let selectedProfile = null;
+    let currentStep = 0;
+    let chartInstance = null;
+
+    const placeholderEl = document.getElementById('analysisPlaceholder');
+    const contentEl = document.getElementById('analysisContent');
+    const stepContentEl = document.getElementById('stepContent');
+
+    document.querySelectorAll('.profile-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.profile-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        selectedProfile = card.dataset.profile;
+        currentStep = 0;
+        showAnalysis();
+      });
+    });
+
+    document.querySelectorAll('.rec-step').forEach(step => {
+      step.addEventListener('click', () => {
+        if (!selectedProfile) return;
+        currentStep = parseInt(step.dataset.step);
+        updateSteps();
+        renderStepContent();
+      });
+    });
+
+    function showAnalysis() {
+      placeholderEl.style.display = 'none';
+      contentEl.style.display = 'block';
+      updateSteps();
+      renderStepContent();
+    }
+
+    function updateSteps() {
+      document.querySelectorAll('.rec-step').forEach((s, i) => {
+        s.classList.toggle('active', i === currentStep);
+      });
+    }
+
+    function destroyChart() {
+      if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+    }
+
+    function renderStepContent() {
+      const p = profiles[selectedProfile];
+      if (!p) return;
+
+      if (currentStep === 0) {
+        stepContentEl.innerHTML = `
+          <h3 style="color:var(--orange);margin-bottom:1rem;">🎯 ${p.name} — 定位匹配分析</h3>
+          <div class="chart-wrapper"><canvas id="mainChart"></canvas></div>
+          <div class="match-summary">
+            <div class="match-card">
+              <div class="match-card__value">${p.focus.length}</div>
+              <div class="match-card__label">核心关注领域</div>
+            </div>
+            <div class="match-card">
+              <div class="match-card__value">92%</div>
+              <div class="match-card__label">风格匹配度</div>
+            </div>
+            <div class="match-card">
+              <div class="match-card__value">${p.competitors.length}</div>
+              <div class="match-card__label">主要竞品</div>
+            </div>
+          </div>
+          <p style="color:var(--text-secondary);font-size:0.875rem;line-height:1.7;">
+            AI 分析了该媒体的历史内容库，识别出
+            <strong style="color:var(--orange)">${p.focus.join('、')}</strong>
+            等核心关注领域。内容与媒体定位的匹配度达到 92%，风格一致性强。
+          </p>
+        `;
+        renderRadarChart('mainChart', p.focus);
+      } else if (currentStep === 1) {
+        stepContentEl.innerHTML = `
+          <h3 style="color:var(--orange);margin-bottom:1rem;">👥 ${p.name} — 受众画像分析</h3>
+          <div class="chart-wrapper"><canvas id="mainChart"></canvas></div>
+          <div class="match-summary">
+            <div class="match-card">
+              <div class="match-card__value">${p.audience.age}</div>
+              <div class="match-card__label">核心年龄段</div>
+            </div>
+            <div class="match-card">
+              <div class="match-card__value">${p.audience.city}</div>
+              <div class="match-card__label">主要城市分布</div>
+            </div>
+            <div class="match-card">
+              <div class="match-card__value">${p.audience.edu}</div>
+              <div class="match-card__label">教育水平</div>
+            </div>
+          </div>
+          <p style="color:var(--text-secondary);font-size:0.875rem;line-height:1.7;">
+            基于用户阅读行为数据，构建了精准的兴趣图谱。受众对
+            <strong style="color:var(--orange)">${p.focus[0]}</strong>
+            和 <strong style="color:var(--orange)">${p.focus[1]}</strong>
+            类内容的阅读完成率最高，是推荐选题的核心方向。
+          </p>
+        `;
+        renderDoughnutChart('mainChart', p.focus);
+      } else if (currentStep === 2) {
+        stepContentEl.innerHTML = `
+          <h3 style="color:var(--orange);margin-bottom:1rem;">🔭 ${p.name} — 竞品选题监测</h3>
+          <div class="chart-wrapper"><canvas id="mainChart"></canvas></div>
+          <p style="color:var(--text-secondary);font-size:0.875rem;line-height:1.7;">
+            监测了 <strong style="color:var(--orange)">${p.competitors.join('、')}</strong>
+            等竞品的选题动向。当前"${p.focus[0]}"领域竞争激烈，建议寻找
+            <strong style="color:var(--orange)">蓝海话题</strong>
+            或采用差异化报道角度。
+          </p>
+        `;
+        renderCompetitorChart('mainChart', p.competitors);
+      } else if (currentStep === 3) {
+        stepContentEl.innerHTML = `
+          <h3 style="color:var(--orange);margin-bottom:1rem;">💡 ${p.name} — 智能选题推荐</h3>
+          <div class="recommendation-list">
+            ${p.recommendations.map((r, i) => `
+              <div class="rec-item">
+                <div class="rec-item__score ${r.score >= 90 ? 'high' : 'medium'}">${r.score}</div>
+                <div class="rec-item__info">
+                  <div class="rec-item__title">${i + 1}. ${r.title}</div>
+                  <div class="rec-item__meta">${r.reason}</div>
+                  <div class="rec-item__tags">${r.tags.map(t => `<span class="rec-item__tag">${t}</span>`).join('')}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+    }
+
+    function renderRadarChart(canvasId, labels) {
+      destroyChart();
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      const data = labels.map(() => Math.round(60 + Math.random() * 35));
+      chartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels,
+          datasets: [{
+            label: '内容匹配度',
+            data,
+            borderColor: '#f97316',
+            backgroundColor: 'rgba(249, 115, 22, 0.2)',
+            pointBackgroundColor: '#f97316'
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            r: {
+              ticks: { color: '#667', backdropColor: 'transparent' },
+              grid: { color: 'rgba(255,255,255,0.08)' },
+              pointLabels: { color: '#8899bb', font: { size: 11 } }
+            }
+          }
+        }
+      });
+    }
+
+    function renderDoughnutChart(canvasId, labels) {
+      destroyChart();
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      const data = labels.map(() => Math.round(15 + Math.random() * 25));
+      chartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [{
+            data,
+            backgroundColor: ['#f97316', '#ec4899', '#00d4ff', '#7c3aed'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: { color: '#8899bb', font: { size: 12 }, padding: 12 }
+            }
+          }
+        }
+      });
+    }
+
+    function renderCompetitorChart(canvasId, competitors) {
+      destroyChart();
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: [...competitors, '本媒体'],
+          datasets: [
+            {
+              label: '选题覆盖数',
+              data: competitors.map(() => Math.round(20 + Math.random() * 30)).concat([Math.round(25 + Math.random() * 20)]),
+              backgroundColor: [...competitors.map(() => 'rgba(255,255,255,0.15)'), 'rgba(249, 115, 22, 0.8)'],
+              borderRadius: 6
+            }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#8899bb' }, grid: { display: false } },
+            y: { ticks: { color: '#667' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>

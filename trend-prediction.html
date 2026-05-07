@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI趋势预测演示系统——历史模式学习、多因素建模、热度预测">
+  <title>趋势预测 | AI × 传媒变革</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    .detail-hero {
+      min-height: 40vh; padding-top: 5rem;
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      background:
+        radial-gradient(ellipse at 50% 30%, color-mix(in srgb, var(--theme-color) 8%, transparent) 0%, transparent 60%),
+        radial-gradient(ellipse at 20% 70%, rgba(124, 58, 237, 0.06) 0%, transparent 50%);
+    }
+    .dashboard-section {
+      max-width: min(90vw, 72rem);
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+    .dashboard-header { text-align: center; margin-bottom: 2rem; }
+    .dashboard-header h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin-bottom: 0.5rem; }
+    .dashboard-header p { color: var(--text-secondary); font-size: 0.9375rem; }
+
+    .topic-selector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 768px) { .topic-selector { grid-template-columns: 1fr; } }
+
+    .topic-option {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+    }
+    .topic-option:hover {
+      border-color: rgba(249, 115, 22, 0.3);
+      transform: translateY(-2px);
+    }
+    .topic-option.active {
+      border-color: var(--orange);
+      box-shadow: 0 0 20px rgba(249, 115, 22, 0.15);
+    }
+    .topic-option__icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .topic-option__title { font-size: 0.9375rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .topic-option__desc { font-size: 0.75rem; color: var(--text-muted); }
+
+    .analysis-section {
+      max-width: min(90vw, 72rem);
+      margin: 0 auto 4rem;
+      padding: 0 1.5rem;
+    }
+    .analysis-placeholder {
+      background: var(--bg-card);
+      border: 2px dashed rgba(255,255,255,0.08);
+      border-radius: 1rem;
+      padding: 4rem 2rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+    .analysis-content {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 1rem;
+      padding: 1.5rem;
+    }
+
+    .prediction-steps {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+    }
+    .pred-step {
+      flex: 1;
+      min-width: 140px;
+      text-align: center;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: all 0.3s;
+    }
+    .pred-step.active {
+      border-color: var(--orange);
+      background: rgba(249, 115, 22, 0.08);
+    }
+    .pred-step__num {
+      width: 2rem; height: 2rem;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.875rem; font-weight: 700;
+      margin: 0 auto 0.5rem;
+    }
+    .pred-step.active .pred-step__num {
+      background: var(--orange);
+      color: #fff;
+    }
+    .pred-step__title { font-size: 0.8125rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .pred-step__desc { font-size: 0.6875rem; color: var(--text-muted); }
+
+    .chart-wrapper { position: relative; height: 300px; margin: 1rem 0; }
+    @media (max-width: 768px) { .chart-wrapper { height: 240px; } }
+
+    .prediction-result {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    @media (max-width: 768px) { .prediction-result { grid-template-columns: repeat(2, 1fr); } }
+    .result-card {
+      background: rgba(255,255,255,0.03);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      text-align: center;
+    }
+    .result-card__value {
+      font-size: 1.5rem; font-weight: 700; color: var(--orange);
+    }
+    .result-card__label {
+      font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;
+    }
+    .progress-bar {
+      width: 100%; height: 0.5rem;
+      background: rgba(255,255,255,0.08);
+      border-radius: 0.25rem;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+    .progress-bar__fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--orange), #fb923c);
+      border-radius: 0.25rem;
+      transition: width 1s ease;
+    }
+
+    .factors-list {
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+      margin: 1rem 0;
+    }
+    .factor-tag {
+      padding: 0.375rem 0.75rem;
+      border-radius: 2rem;
+      font-size: 0.8125rem;
+      background: rgba(249, 115, 22, 0.1);
+      border: 1px solid rgba(249, 115, 22, 0.2);
+      color: var(--orange);
+    }
+  </style>
+</head>
+<body style="--theme-color: var(--orange);">
+  <nav class="navbar">
+    <div class="navbar__logo">
+      <div class="navbar__logo-icon">A</div>
+      <span class="navbar__logo-text">AI × 传媒变革</span>
+    </div>
+    <div class="navbar__links">
+      <a href="index.html" class="navbar__link">首页</a>
+      <a href="index.html#topic" class="navbar__link navbar__link--active">选题策划</a>
+      <a href="index.html#produce" class="navbar__link">内容生产</a>
+      <a href="index.html#review" class="navbar__link">审核校对</a>
+      <a href="index.html#distribute" class="navbar__link">智能分发</a>
+      <a href="index.html#insight" class="navbar__link">数据洞察</a>
+      <a href="index.html#future" class="navbar__link">未来展望</a>
+    </div>
+  </nav>
+
+  <section class="detail-hero">
+    <div class="hero__grid-bg"></div>
+    <div class="hero__content">
+      <div class="hero__badge">🔮 趋势预测</div>
+      <h1 class="hero__title">让 AI 预判<span style="color: var(--orange)">话题走向</span></h1>
+      <p class="hero__subtitle">基于历史数据传播规律，AI 预测模型提前 24-72 小时预判热点爆发</p>
+    </div>
+  </section>
+
+  <section class="dashboard-section">
+    <div class="dashboard-header">
+      <h2>🔮 选择话题进行预测</h2>
+      <p>点击下方话题，查看 AI 如何进行趋势预测分析</p>
+    </div>
+    <div class="topic-selector" id="topicSelector">
+      <div class="topic-option" data-topic="0">
+        <div class="topic-option__icon">🏃</div>
+        <div class="topic-option__title">杭州亚运会</div>
+        <div class="topic-option__desc">体育 / 社会 / 高热度</div>
+      </div>
+      <div class="topic-option" data-topic="1">
+        <div class="topic-option__icon">📱</div>
+        <div class="topic-option__title">iPhone 16 发布</div>
+        <div class="topic-option__desc">科技 / 消费 / 周期性</div>
+      </div>
+      <div class="topic-option" data-topic="2">
+        <div class="topic-option__icon">🏠</div>
+        <div class="topic-option__title">楼市新政出台</div>
+        <div class="topic-option__desc">政策 / 民生 / 持续性</div>
+      </div>
+      <div class="topic-option" data-topic="3">
+        <div class="topic-option__icon">🎮</div>
+        <div class="topic-option__title">国产3A游戏</div>
+        <div class="topic-option__desc">文化 / 游戏 / 爆发性</div>
+      </div>
+      <div class="topic-option" data-topic="4">
+        <div class="topic-option__icon">💼</div>
+        <div class="topic-option__title">职场35岁危机</div>
+        <div class="topic-option__desc">社会 / 职场 / 长期性</div>
+      </div>
+      <div class="topic-option" data-topic="5">
+        <div class="topic-option__icon">🍽️</div>
+        <div class="topic-option__title">预制菜进校园</div>
+        <div class="topic-option__desc">民生 / 健康 / 争议性</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="analysis-section">
+    <div class="analysis-placeholder" id="analysisPlaceholder">
+      👆 选择上方话题，查看 AI 趋势预测全流程
+    </div>
+    <div class="analysis-content" id="analysisContent" style="display:none;">
+      <div class="prediction-steps" id="predictionSteps">
+        <div class="pred-step active" data-step="0">
+          <div class="pred-step__num">1</div>
+          <div class="pred-step__title">历史模式学习</div>
+          <div class="pred-step__desc">分析历史传播规律</div>
+        </div>
+        <div class="pred-step" data-step="1">
+          <div class="pred-step__num">2</div>
+          <div class="pred-step__title">多因素建模</div>
+          <div class="pred-step__desc">综合多维度影响因素</div>
+        </div>
+        <div class="pred-step" data-step="2">
+          <div class="pred-step__num">3</div>
+          <div class="pred-step__title">预测输出</div>
+          <div class="pred-step__desc">生成未来热度曲线</div>
+        </div>
+        <div class="pred-step" data-step="3">
+          <div class="pred-step__num">4</div>
+          <div class="pred-step__title">准确率验证</div>
+          <div class="pred-step__desc">模型预测效果评估</div>
+        </div>
+      </div>
+
+      <div class="step-content" id="stepContent">
+        <!-- 动态内容 -->
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="navbar__logo">
+        <div class="navbar__logo-icon">A</div>
+        <span class="navbar__logo-text">AI × 传媒变革</span>
+      </div>
+      <div class="footer__links">
+        <a href="index.html">首页</a>
+        <a href="#">关于我们</a>
+        <a href="#">联系方式</a>
+      </div>
+      <div class="footer__copyright">© 2026 AI × 传媒变革. 技术引领，探索未来.</div>
+    </div>
+  </footer>
+
+  <script>
+    const topics = [
+      {
+        name: '杭州亚运会',
+        icon: '🏃',
+        history: [120, 350, 890, 2100, 4500, 8900, 15600, 21000, 28473, 32000, 35000, 38000],
+        predicted: [38000, 42000, 48000, 55000, 62000, 58000, 45000, 32000],
+        actual: [39000, 41000, 47000, 54000, 61000, 59000, 46000, 33000],
+        factors: ['节假日效应', '社交媒体KOL', '赛事进程', '地域情感', '官方宣传'],
+        accuracy: 94,
+        verdict: 'high',
+        trend: 'rising'
+      },
+      {
+        name: 'iPhone 16 发布',
+        icon: '📱',
+        history: [500, 800, 1500, 3000, 6000, 12000, 25000, 35000, 42000, 38000, 32000, 28000],
+        predicted: [28000, 25000, 22000, 20000, 18000, 16000, 15000, 14000],
+        actual: [29000, 26000, 23000, 21000, 18500, 16500, 15500, 14500],
+        factors: ['产品周期', '媒体评测', '用户口碑', '竞品对比', '供应链'],
+        accuracy: 91,
+        verdict: 'high',
+        trend: 'declining'
+      },
+      {
+        name: '楼市新政出台',
+        icon: '🏠',
+        history: [200, 400, 800, 1500, 3000, 5000, 8000, 12000, 15000, 18000, 16000, 14000],
+        predicted: [14000, 13500, 14000, 15500, 17000, 18000, 17500, 16000],
+        actual: [14500, 13800, 14200, 15800, 17200, 18200, 17800, 16200],
+        factors: ['政策力度', '市场预期', '经济数据', '地方执行', '舆论情绪'],
+        accuracy: 89,
+        verdict: 'high',
+        trend: 'stable'
+      },
+      {
+        name: '国产3A游戏',
+        icon: '🎮',
+        history: [50, 100, 300, 800, 2000, 5000, 12000, 25000, 40000, 55000, 60000, 58000],
+        predicted: [58000, 62000, 68000, 75000, 80000, 72000, 55000, 40000],
+        actual: [60000, 64000, 70000, 76000, 82000, 74000, 56000, 42000],
+        factors: ['玩家口碑', '直播效应', '文化认同', '海外传播', '媒体评分'],
+        accuracy: 93,
+        verdict: 'high',
+        trend: 'rising'
+      },
+      {
+        name: '职场35岁危机',
+        icon: '💼',
+        history: [300, 500, 800, 1200, 1800, 2500, 3500, 5000, 7000, 8500, 9000, 9200],
+        predicted: [9200, 9500, 10000, 10800, 11500, 12000, 11800, 11000],
+        actual: null,
+        factors: ['经济环境', '行业周期', '代际差异', '政策导向', '社会情绪'],
+        accuracy: 87,
+        verdict: 'medium',
+        trend: 'rising'
+      },
+      {
+        name: '预制菜进校园',
+        icon: '🍽️',
+        history: [100, 300, 800, 2000, 5000, 10000, 18000, 25000, 22000, 20000, 18000, 16000],
+        predicted: [16000, 15000, 14000, 13500, 13000, 12500, 12000, 11500],
+        actual: [16500, 15500, 14500, 13800, 13200, 12800, 12200, 11800],
+        factors: ['健康担忧', '家长反对', '监管回应', '媒体报道', '政策调整'],
+        accuracy: 90,
+        verdict: 'high',
+        trend: 'declining'
+      }
+    ];
+
+    let selectedTopic = null;
+    let currentStep = 0;
+    let chartInstance = null;
+
+    const placeholderEl = document.getElementById('analysisPlaceholder');
+    const contentEl = document.getElementById('analysisContent');
+    const stepContentEl = document.getElementById('stepContent');
+
+    function formatNumber(n) {
+      if (n >= 10000) return (n / 10000).toFixed(1) + 'W';
+      if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+      return n.toString();
+    }
+
+    // 选择话题
+    document.querySelectorAll('.topic-option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        document.querySelectorAll('.topic-option').forEach(o => o.classList.remove('active'));
+        opt.classList.add('active');
+        selectedTopic = parseInt(opt.dataset.topic);
+        currentStep = 0;
+        showAnalysis();
+      });
+    });
+
+    // 步骤切换
+    document.querySelectorAll('.pred-step').forEach(step => {
+      step.addEventListener('click', () => {
+        if (selectedTopic === null) return;
+        currentStep = parseInt(step.dataset.step);
+        updateSteps();
+        renderStepContent();
+      });
+    });
+
+    function showAnalysis() {
+      placeholderEl.style.display = 'none';
+      contentEl.style.display = 'block';
+      updateSteps();
+      renderStepContent();
+    }
+
+    function updateSteps() {
+      document.querySelectorAll('.pred-step').forEach((s, i) => {
+        s.classList.toggle('active', i === currentStep);
+      });
+    }
+
+    function renderStepContent() {
+      const t = topics[selectedTopic];
+      if (!t) return;
+
+      if (currentStep === 0) {
+        // 历史模式学习
+        stepContentEl.innerHTML = `
+          <h3 style="color:var(--orange);margin-bottom:1rem;">📊 ${t.name} — 历史传播数据</h3>
+          <div class="chart-wrapper"><canvas id="mainChart"></canvas></div>
+          <p style="color:var(--text-secondary);font-size:0.875rem;line-height:1.7;">
+            AI 模型分析了该话题过去 12 个时间周期的传播数据，识别出
+            <strong style="color:var(--orange)">${t.trend === 'rising' ? '上升趋势' : t.trend === 'declining' ? '下降趋势' : '波动稳定'}</strong>
+            的传播模式。峰值出现在周期 ${t.history.indexOf(Math.max(...t.history)) + 1}，
+            热度达到 ${formatNumber(Math.max(...t.history))}。
+          </p>
+        `;
+        renderChart('mainChart', t.history, null, '历史热度');
+      } else if (currentStep === 1) {
+        // 多因素建模
+        stepContentEl.innerHTML = `
+          <h3 style="color:var(--orange);margin-bottom:1rem;">🧩 ${t.name} — 影响因素权重分析</h3>
+          <div class="factors-list">
+            ${t.factors.map(f => `<span class="factor-tag">${f}</span>`).join('')}
+          </div>
+          <div class="chart-wrapper"><canvas id="mainChart"></canvas></div>
+          <p style="color:var(--text-secondary);font-size:0.875rem;line-height:1.7;">
+            模型综合考虑了 ${t.factors.length} 个核心影响因素。其中
+            <strong style="color:var(--orange)">${t.factors[0]}</strong>
+            和 <strong style="color:var(--orange)">${t.factors[1]}</strong>
+            对热度走势的影响权重最高，是预测模型的关键输入特征。
+          </p>
+        `;
+        renderBarChart('mainChart', t.factors);
+      } else if (currentStep === 2) {
+        // 预测输出
+        stepContentEl.innerHTML = `
+          <h3 style="color:var(--orange);margin-bottom:1rem;">🔮 ${t.name} — 未来热度预测</h3>
+          <div class="chart-wrapper"><canvas id="mainChart"></canvas></div>
+          <p style="color:var(--text-secondary);font-size:0.875rem;line-height:1.7;">
+            AI 模型预测该话题未来 8 个周期的热度走势。预测峰值将达到
+            <strong style="color:var(--orange)">${formatNumber(Math.max(...t.predicted))}</strong>，
+            整体呈 <strong style="color:var(--orange)">${t.trend === 'rising' ? '上升' : t.trend === 'declining' ? '下降' : '波动稳定'}</strong> 趋势。
+          </p>
+        `;
+        renderChart('mainChart', t.history, t.predicted, '历史热度', '预测热度');
+      } else if (currentStep === 3) {
+        // 准确率验证
+        const hasActual = t.actual !== null;
+        stepContentEl.innerHTML = `
+          <h3 style="color:var(--orange);margin-bottom:1rem;">✅ ${t.name} — 预测准确率评估</h3>
+          ${hasActual ? `
+            <div class="chart-wrapper"><canvas id="mainChart"></canvas></div>
+          ` : ''}
+          <div class="prediction-result">
+            <div class="result-card">
+              <div class="result-card__value">${t.accuracy}%</div>
+              <div class="result-card__label">预测准确率</div>
+              <div class="progress-bar"><div class="progress-bar__fill" style="width:${t.accuracy}%"></div></div>
+            </div>
+            <div class="result-card">
+              <div class="result-card__value">${formatNumber(Math.max(...t.predicted))}</div>
+              <div class="result-card__label">预测峰值</div>
+            </div>
+            <div class="result-card">
+              <div class="result-card__value">${t.trend === 'rising' ? '📈 上升' : t.trend === 'declining' ? '📉 下降' : '➡️ 稳定'}</div>
+              <div class="result-card__label">趋势判断</div>
+            </div>
+            <div class="result-card">
+              <div class="result-card__value">${t.verdict === 'high' ? '🔥 高置信' : '⏳ 中置信'}</div>
+              <div class="result-card__label">模型置信度</div>
+            </div>
+          </div>
+          <p style="color:var(--text-secondary);font-size:0.875rem;line-height:1.7;margin-top:1rem;">
+            ${hasActual
+              ? `模型预测与实际数据对比，平均偏差率仅 ${(100 - t.accuracy).toFixed(1)}%。该话题的传播规律符合模型的训练分布，预测可靠性高。`
+              : `该话题为新兴热点，尚无足够实际数据进行回测。模型基于相似话题的历史模式进行推断，建议持续观察验证。`
+            }
+          </p>
+        `;
+        if (hasActual) {
+          renderCompareChart('mainChart', t.predicted, t.actual);
+        }
+      }
+    }
+
+    function destroyChart() {
+      if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+    }
+
+    function renderChart(canvasId, history, predicted, label1, label2) {
+      destroyChart();
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      const labels = Array.from({length: history.length}, (_, i) => `T-${history.length - i}`);
+      const datasets = [{
+        label: label1,
+        data: history,
+        borderColor: '#f97316',
+        backgroundColor: 'rgba(249, 115, 22, 0.1)',
+        fill: true, tension: 0.4, pointRadius: 3
+      }];
+      if (predicted) {
+        const predLabels = Array.from({length: predicted.length}, (_, i) => `T+${i + 1}`);
+        labels.push(...predLabels);
+        datasets.push({
+          label: label2,
+          data: [...Array(history.length - 1).fill(null), history[history.length - 1], ...predicted.slice(1)],
+          borderColor: '#00d4ff',
+          backgroundColor: 'rgba(0, 212, 255, 0.1)',
+          borderDash: [5, 5],
+          fill: true, tension: 0.4, pointRadius: 3
+        });
+      }
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#8899bb' } }
+          },
+          scales: {
+            x: { ticks: { color: '#667' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y: { ticks: { color: '#667' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+    }
+
+    function renderBarChart(canvasId, factors) {
+      destroyChart();
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      const weights = factors.map(() => Math.round(50 + Math.random() * 45));
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: factors,
+          datasets: [{
+            label: '影响权重',
+            data: weights,
+            backgroundColor: weights.map((_, i) => i < 2 ? 'rgba(249, 115, 22, 0.8)' : 'rgba(249, 115, 22, 0.3)'),
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#8899bb' }, grid: { display: false } },
+            y: { ticks: { color: '#667' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+    }
+
+    function renderCompareChart(canvasId, predicted, actual) {
+      destroyChart();
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      const labels = Array.from({length: predicted.length}, (_, i) => `T+${i + 1}`);
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: '预测值',
+              data: predicted,
+              borderColor: '#00d4ff',
+              backgroundColor: 'rgba(0, 212, 255, 0.1)',
+              fill: false, tension: 0.4, pointRadius: 4
+            },
+            {
+              label: '实际值',
+              data: actual,
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              fill: false, tension: 0.4, pointRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#8899bb' } } },
+          scales: {
+            x: { ticks: { color: '#667' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y: { ticks: { color: '#667' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
